@@ -1,0 +1,4 @@
+../Core/Src/KeyPad.c:13:6:KeyPad_Init	32	static
+../Core/Src/KeyPad.c:37:10:KeyPad_Scan	16	static
+../Core/Src/KeyPad.c:65:10:KeyPad_WaitForKey	24	static
+../Core/Src/KeyPad.c:93:6:KeyPad_WaitForKeyGetChar	16	static
