@@ -66,7 +66,7 @@ char mess[10];
 extern uint8_t pID;
 int tmp;
 uint8_t ID=0;
-uint8_t fingerprint_detected = 0; // Biến c�? để đánh dấu trạng thái vân tay
+uint8_t fingerprint_detected = 0; // Biến c�? để đánh dấu trạng thái vân tay
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -108,15 +108,15 @@ void check_fingerprint_status()
     uint8_t status = collect_finger(); // Hàm kiểm tra trạng thái vân tay
     if (status == 0x00) // Nếu phát hiện vân tay
     {
-        fingerprint_detected = 1; // �?ặt c�? báo hiệu
+        fingerprint_detected = 1; // �?ặt c�? báo hiệu
     }
 }
 void process_fingerprint()
 {
     if (fingerprint_detected) // Nếu có vân tay
     {
-        fingerprint_detected = 0; // Xóa c�?
-        read_finger(); // G�?i hàm xử lý vân tay
+        fingerprint_detected = 0; // Xóa c�?
+        read_finger(); // G�?i hàm xử lý vân tay
     }
 }
 
@@ -156,6 +156,7 @@ int main(void)
   MX_TIM2_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+  TM_MFRC522_Init();
   KeyPad_Init();
   CLCD_I2C_Init(&LCD1, &hi2c2, 0x4E, 16, 2);
   /* USER CODE END 2 */
@@ -189,7 +190,7 @@ int main(void)
           case 'C': // FINGER
           case 'D': // PASSWORD
               CLCD_I2C_SetCursor(&LCD1, 0, 1);
-              CLCD_I2C_WriteString(&LCD1, "   ADMIN CARD");
+              CLCD_I2C_WriteString(&LCD1, "   Admin Card");
 
               while (exitmenu)
               {
@@ -521,7 +522,7 @@ void RFID(void)
 {
 	exitmenu = 15;
 	uint8_t status = -1;
-	CLCD_I2C_Display(&LCD1,"  SELECT MENU","PLS PRESS DOWN");
+	CLCD_I2C_Display(&LCD1," RFID SETTINGS ","Pls Press Down");
 	while (exitmenu )
 	{
 		char key_pressed = KeyPad_WaitForKeyGetChar(10);
@@ -533,16 +534,16 @@ void RFID(void)
 			switch (status)
 			{
 			case 0:
-				CLCD_I2C_Display(&LCD1,"=>  ADD CARD","    REMOVE CARD");
+				CLCD_I2C_Display(&LCD1," RFID SETTINGS ","=> Add Card");
 				break;
 			case 1:
-				CLCD_I2C_Display(&LCD1,"    ADD CARD","=>  REMOVE CARD");
+				CLCD_I2C_Display(&LCD1," RFID SETTINGS ","=> Remove Card");
 				break;
 			case 2:
-				CLCD_I2C_Display(&LCD1,"    REMOVE CARD","=>  CHECK CARD");
+				CLCD_I2C_Display(&LCD1," RFID SETTINGS ","=> Check Card");
 				break;
 			default:
-				CLCD_I2C_Display(&LCD1,"    CHECK CARD","=>  BACK");
+				CLCD_I2C_Display(&LCD1," RFID SETTINGS ","=> Back");
 				break;
 			}
 		}
@@ -552,7 +553,7 @@ void RFID(void)
 			switch (status)
 			{
 			case 0:
-				CLCD_I2C_Display(&LCD1,"   RFID__CARD   ","PLS PRESS DOWN");
+				CLCD_I2C_Display(&LCD1,"CARD: ADD","Pls Press Down");
 				uint8_t statusadd = 0;
 				uint8_t back = 1;
 				while (back == 1)
@@ -572,13 +573,13 @@ void RFID(void)
 						switch (statusadd)
 						{
 						case 1:
-							CLCD_I2C_Display(&LCD1,"=> ADMIN CARD","   USER CARD");
+							CLCD_I2C_Display(&LCD1,"CARD: ADD","=> Admin Card");
 							break;
 						case 2:
-							CLCD_I2C_Display(&LCD1,"   ADMIN CARD","=> USER CARD");
+							CLCD_I2C_Display(&LCD1,"CARD: ADD","=> User Card");
 							break;
 						default:
-							CLCD_I2C_Display(&LCD1,"   USER CARD","=> BACK");
+							CLCD_I2C_Display(&LCD1,"CARD: ADD","=> Back");
 							break;
 						}
 					}
@@ -588,8 +589,8 @@ void RFID(void)
 						switch (statusadd)
 						{
 						case 1:
-							CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 1 ","    ADMIN CARD 2 ");
-							uint8_t statusadd1 = 1;
+							CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","Pls Press Down");
+							uint8_t statusadd1 = 0;
 							uint8_t back11 = 1;
 							while (back11 == 1)
 							{
@@ -608,16 +609,16 @@ void RFID(void)
 									switch (statusadd1)
 									{
 									case 1:
-										CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 1 ","    ADMIN CARD 2 ");
+										CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 1 ");
 										break;
 									case 2:
-										CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 2 ","    ADMIN CARD 3 ");
+										CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 2 ");
 										break;
 									case 3:
-										CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 3 ","    BACK ");
+										CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 3 ");
 										break;
 									default:
-										CLCD_I2C_Display(&LCD1,"    ADMIN CARD 3 ","=>  BACK");
+										CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Back");
 										break;
 									}
 								}
@@ -630,40 +631,40 @@ void RFID(void)
 									case 1:
 										if (CheckKey(keyadd1) != 0)
 										{
-											CLCD_I2C_Display(&LCD1,"ADMIN 1","AVAILABLE");
+											CLCD_I2C_Display(&LCD1,"    ADMIN 1"," Card 1 Existed ");
 											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 1 ","    ADMIN CARD 2 ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 1 ");
 										}
 										else
 										{
 											adduid(keyadd1);
-											CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 1 ","    ADMIN CARD 2 ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 1 ");
 										}
 										break;
 									case 2:
 										if (CheckKey(keyadd1) != 0)
 										{
-											CLCD_I2C_Display(&LCD1,"ADMIN 2","AVAILABLE");
+											CLCD_I2C_Display(&LCD1,"    ADMIN 2"," Card 2 Existed ");
 											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 2 ","    ADMIN CARD 3 ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 2 ");
 										}
 										else
 										{
 											adduid(keyadd1);
-											CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 2 ","    ADMIN CARD 3 ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 2 ");
 										}
 										break;
 									case 3:
 										if (CheckKey(keyadd1) != 0)
 										{
-											CLCD_I2C_Display(&LCD1,"ADMIN 3","AVAILABLE");
+											CLCD_I2C_Display(&LCD1,"    ADMIN 3"," Card 3 Existed ");
 											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 3 ","    BACK ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 3 ");
 										}
 										else
 										{
 											adduid(keyadd1);
-											CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 3 ","    BACK ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 3 ");
 										}
 										break;
 									default:
@@ -672,11 +673,11 @@ void RFID(void)
 									}
 								}
 							}
-							CLCD_I2C_Display(&LCD1,"=> ADMIN CARD","   USER CARD");
+							CLCD_I2C_Display(&LCD1,"CARD: ADD","=> Admin Card");
 							break;
 						case 2:
-							CLCD_I2C_Display(&LCD1,"=>  USER CARD 1 ","    USER CARD 2 ");
-							uint8_t statusadd2 = 1;
+							CLCD_I2C_Display(&LCD1,"MODE: ADD USER","Pls Press Down");
+							uint8_t statusadd2 = 0;
 							uint8_t back12 = 1;
 							while (back12 == 1)
 							{
@@ -695,16 +696,16 @@ void RFID(void)
 									switch (statusadd2)
 									{
 									case 1:
-										CLCD_I2C_Display(&LCD1,"=>  USER CARD 1 ","    USER CARD 2 ");
+										CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 1 ");
 										break;
 									case 2:
-										CLCD_I2C_Display(&LCD1,"=>  USER CARD 2 ","    USER CARD 3 ");
+										CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 2 ");
 										break;
 									case 3:
-										CLCD_I2C_Display(&LCD1,"=>  USER CARD 3 ","    BACK ");
+										CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 3 ");
 										break;
 									default:
-										CLCD_I2C_Display(&LCD1,"    USER CARD 3 ","=>  BACK");
+										CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> Back");
 										break;
 									}
 								}
@@ -717,40 +718,40 @@ void RFID(void)
 									case 1:
 										if (CheckKey(keyadd2) != 0)
 										{
-											CLCD_I2C_Display(&LCD1,"USER 1","AVAILABLE");
+											CLCD_I2C_Display(&LCD1,"     USER 1"," Card 1 Existed ");
 											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1,"=>  USER CARD 1 ","    USER CARD 2 ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 1 ");
 										}
 										else
 										{
 											adduid(keyadd2);
-											CLCD_I2C_Display(&LCD1,"=>  USER CARD 1 ","    USER CARD 2 ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 1 ");
 										}
 										break;
 									case 2:
 										if (CheckKey(keyadd2) != 0)
 										{
-											CLCD_I2C_Display(&LCD1,"USER 2","AVAILABLE");
+											CLCD_I2C_Display(&LCD1,"     USER 2"," Card 2 Existed ");
 											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1,"=>  USER CARD 2 ","    USER CARD 3 ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 2 ");
 										}
 										else
 										{
 											adduid(keyadd2);
-											CLCD_I2C_Display(&LCD1,"=>  USER CARD 2 ","    USER CARD 3 ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 2 ");
 										}
 										break;
 									case 3:
 										if (CheckKey(keyadd2) != 0)
 										{
-											CLCD_I2C_Display(&LCD1,"USER 3","AVAILABLE");
+											CLCD_I2C_Display(&LCD1,"     USER 3"," Card 3 Existed ");
 											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1,"=>  USER CARD 3 ","    BACK ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 3 ");
 										}
 										else
 										{
 											adduid(keyadd2);
-											CLCD_I2C_Display(&LCD1,"=>  USER CARD 3 ","    BACK ");
+											CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 3 ");
 										}
 										break;
 									default:
@@ -759,7 +760,7 @@ void RFID(void)
 									}
 								}
 							}
-							CLCD_I2C_Display(&LCD1,"   ADMIN CARD","=> USER CARD");
+							CLCD_I2C_Display(&LCD1,"CARD: ADD","=> User Card");
 							break;
 						default:
 							back = 0;
@@ -767,10 +768,10 @@ void RFID(void)
 						}
 					}
 				}
-				CLCD_I2C_Display(&LCD1,"=>  ADD CARD","    REMOVE CARD");
+				CLCD_I2C_Display(&LCD1," RFID SETTINGS ","=> Add Card");
 				break;
 			case 1:
-				CLCD_I2C_Display(&LCD1,"   RFID__CARD   ","PLS PRESS DOWN");
+				CLCD_I2C_Display(&LCD1,"CARD: REMOVE","Pls Press Down");
 				uint8_t statusremove = -1;
 				uint8_t backrm = 1;
 				while (backrm == 1)
@@ -790,24 +791,24 @@ void RFID(void)
 						switch (statusremove)
 						{
 						case 0:
-							CLCD_I2C_Display(&LCD1,"=> REMOVE CARD","   REMOVE ALL");
+							CLCD_I2C_Display(&LCD1,"CARD: REMOVE","=> Remove 1 Card");
 							break;
 						case 1:
-							CLCD_I2C_Display(&LCD1,"   REMOVE CARD","=> REMOVE ALL");
+							CLCD_I2C_Display(&LCD1,"CARD: REMOVE","=> Remove ALL");
 							break;
 						default:
-							CLCD_I2C_Display(&LCD1,"   REMOVE ALL","=> BACK");
+							CLCD_I2C_Display(&LCD1,"CARD: REMOVE","=> Back");
 							break;
 						}
 					}
 					if (key_pressed =='#')
 					{
+						CLCD_I2C_Display(&LCD1,"MODE: REMOVE 1","Pls Press Down");
 						exitmenu = 15;
 						switch (statusremove)
 						{
 						case 0:
-							CLCD_I2C_Display(&LCD1,"=> SELECT CARD","   SCAN CARD");
-							uint8_t statusrm1 = 0;
+							uint8_t statusrm1 = -1;
 							uint8_t backrm1 = 1;
 							while (backrm1 == 1)
 							{
@@ -825,13 +826,13 @@ void RFID(void)
 									switch (statusrm1)
 									{
 									case 0:
-										CLCD_I2C_Display(&LCD1,"=> SELECT CARD","   SCAN CARD");
+										CLCD_I2C_Display(&LCD1,"MODE: REMOVE 1","=> Select Card");
 										break;
 									case 1:
-										CLCD_I2C_Display(&LCD1,"   SELECT CARD","=> SCAN CARD");
+										CLCD_I2C_Display(&LCD1,"MODE: REMOVE 1","=> Scan Card");
 										break;
 									default:
-										CLCD_I2C_Display(&LCD1,"   SCAN CARD","=> BACK");
+										CLCD_I2C_Display(&LCD1,"MODE: REMOVE 1","=> Back");
 										break;
 									}
 								}
@@ -841,8 +842,8 @@ void RFID(void)
 									switch (statusrm1)
 									{
 									case 0:
-										CLCD_I2C_Display(&LCD1,"=> ADMIN CARD","   USER CARD");
-										uint8_t statusadd = 1;
+										CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","Pls Press Down");
+										uint8_t statusadd = 0;
 										uint8_t backrm10 = 1;
 										while (backrm10 == 1)
 										{
@@ -861,14 +862,13 @@ void RFID(void)
 												switch (statusadd)
 												{
 												case 1:
-													CLCD_I2C_Display(&LCD1,"=> ADMIN CARD","   USER CARD");
+													CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","=> RM Admin Card");
 													break;
 												case 2:
-													CLCD_I2C_Display(&LCD1,"   ADMIN CARD","=> USER CARD");
+													CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","=> RM User Card");
 													break;
 												default:
-													CLCD_I2C_Display(&LCD1,"   USER CARD","=> BACK");
-													break;
+													CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","=> Back");													break;
 												}
 											}
 											if (key_pressed =='#')
@@ -877,8 +877,8 @@ void RFID(void)
 												switch (statusadd)
 												{
 												case 1:
-													CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 1 ","    ADMIN CARD 2 ");
-													uint8_t statusadd1 = 1;
+													CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","Pls Press Down");
+													uint8_t statusadd1 = 0;
 													uint8_t back11 = 1;
 													while (back11 == 1)
 													{
@@ -897,16 +897,16 @@ void RFID(void)
 															switch (statusadd1)
 															{
 															case 1:
-																CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 1 ","    ADMIN CARD 2 ");
+																CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 1");
 																break;
 															case 2:
-																CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 2 ","    ADMIN CARD 3 ");
+																CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 2");
 																break;
 															case 3:
-																CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 3 ","    BACK ");
+																CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 3");
 																break;
 															default:
-																CLCD_I2C_Display(&LCD1,"    ADMIN CARD 3 ","=>  BACK");
+																CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> Back");
 																break;
 															}
 														}
@@ -919,16 +919,14 @@ void RFID(void)
 															case 1:
 																if (CheckKey(keyadd1) == 0)
 																{
-																	CLCD_I2C_Clear(&LCD1);
-																	CLCD_I2C_SetCursor(&LCD1,0,0);
-																	CLCD_I2C_WriteString(&LCD1, "NO ADMIN CARD 1 ");
+																	CLCD_I2C_Display(&LCD1, "    ADMIN 1", "Do Not Exist");
 																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 1 ","    ADMIN CARD 2 ");
+																	CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 1");
 																}
 																else
 																{
 																	removeuid(CheckKey(keyadd1));
-																	CLCD_I2C_Display(&LCD1,"  DELETE CARD 1 ","   SUCCESSFUL  ");
+																	CLCD_I2C_Display(&LCD1,"  REMOVE ADCARD 1 ","   SUCCESSFUL  ");
 																	HAL_Delay(1000);
 																	if (checkcountUID() == 0)
 																	{
@@ -937,23 +935,21 @@ void RFID(void)
 																	}
 																	else
 																	{
-																		CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 1 ","    ADMIN CARD 2 ");
+																		CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 1");
 																	}
 																}
 																break;
 															case 2:
 																if (CheckKey(keyadd1) == 0)
 																{
-																	CLCD_I2C_Clear(&LCD1);
-																	CLCD_I2C_SetCursor(&LCD1,0,0);
-																	CLCD_I2C_WriteString(&LCD1, "NO ADMIN CARD 2 ");
+																	CLCD_I2C_Display(&LCD1, "    ADMIN 2", "Do Not Exist");
 																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 2 ","    ADMIN CARD 3 ");
+																	CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 2");
 																}
 																else
 																{
 																	removeuid(CheckKey(keyadd1));
-																	CLCD_I2C_Display(&LCD1,"  DELETE CARD 2 ","   SUCCESSFUL  ");
+																	CLCD_I2C_Display(&LCD1,"  REMOVE ADCARD 2 ","   SUCCESSFUL  ");
 																	HAL_Delay(1000);
 																	if (checkcountUID() == 0)
 																	{
@@ -962,23 +958,21 @@ void RFID(void)
 																	}
 																	else
 																	{
-																		CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 2 ","    ADMIN CARD 3 ");
+																		CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 2");
 																	}
 																}
 																break;
 															case 3:
 																if (CheckKey(keyadd1) == 0)
 																{
-																	CLCD_I2C_Clear(&LCD1);
-																	CLCD_I2C_SetCursor(&LCD1,0,0);
-																	CLCD_I2C_WriteString(&LCD1, "NO ADMIN CARD 3 ");
+																	CLCD_I2C_Display(&LCD1, "    ADMIN 3", "Do Not Exist");
 																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 3 ","    BACK ");
+																	CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 3");
 																}
 																else
 																{
 																	removeuid(CheckKey(keyadd1));
-																	CLCD_I2C_Display(&LCD1,"  DELETE CARD 3 ","   SUCCESSFUL  ");
+																	CLCD_I2C_Display(&LCD1,"  REMOVE ADCARD 3 ","   SUCCESSFUL  ");
 																	HAL_Delay(1000);
 																	if (checkcountUID() == 0)
 																	{
@@ -987,7 +981,7 @@ void RFID(void)
 																	}
 																	else
 																	{
-																		CLCD_I2C_Display(&LCD1,"=>  ADMIN CARD 3 ","    BACK ");
+																		CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 3");
 																	}
 																}
 																break;
@@ -997,11 +991,11 @@ void RFID(void)
 															}
 														}
 													}
-													CLCD_I2C_Display(&LCD1,"=> ADMIN CARD","   USER CARD");
+													CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","=> RM Admin Card");
 													break;
 												case 2:
-													CLCD_I2C_Display(&LCD1,"=>  USER CARD 1 ","    USER CARD 2 ");
-													uint8_t statusadd2 = 1;
+													CLCD_I2C_Display(&LCD1,"MODE: RM USER","Pls Press Down");
+													uint8_t statusadd2 = 0;
 													uint8_t back12 = 1;
 													while (back12 == 1)
 													{
@@ -1020,16 +1014,16 @@ void RFID(void)
 															switch (statusadd2)
 															{
 															case 1:
-																CLCD_I2C_Display(&LCD1,"=>  USER CARD 1 ","    USER CARD 2 ");
+																CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 1");
 																break;
 															case 2:
-																CLCD_I2C_Display(&LCD1,"=>  USER CARD 2 ","    USER CARD 3 ");
+																CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 2");
 																break;
 															case 3:
-																CLCD_I2C_Display(&LCD1,"=>  USER CARD 3 ","    BACK ");
+																CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 3");
 																break;
 															default:
-																CLCD_I2C_Display(&LCD1,"    USER CARD 3 ","=>  BACK");
+																CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> Back");
 																break;
 															}
 														}
@@ -1042,52 +1036,46 @@ void RFID(void)
 															case 1:
 																if (CheckKey(keyadd2) == 0)
 																{
-																	CLCD_I2C_Clear(&LCD1);
-																	CLCD_I2C_SetCursor(&LCD1,0,0);
-																	CLCD_I2C_WriteString(&LCD1, "NO USER CARD 1 ");
+																	CLCD_I2C_Display(&LCD1, "     USER 1","Do Not Exist");
 																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1,"=>  USER CARD 1 ","    USER CARD 2 ");
+																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 1");
 																}
 																else
 																{
 																	removeuid(CheckKey(keyadd2));
-																	CLCD_I2C_Display(&LCD1,"  DELETE CARD 1 ","   SUCCESSFUL  ");
+																	CLCD_I2C_Display(&LCD1,"  REMOVE USCARD 1 ","   SUCCESSFUL  ");
 																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1,"=>  USER CARD 1 ","    USER CARD 2 ");
+																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 1");
 																}
 																break;
 															case 2:
 																if (CheckKey(keyadd2) == 0)
 																{
-																	CLCD_I2C_Clear(&LCD1);
-																	CLCD_I2C_SetCursor(&LCD1,0,0);
-																	CLCD_I2C_WriteString(&LCD1, "NO USER CARD 2 ");
+																	CLCD_I2C_Display(&LCD1, "     USER 2","Do Not Exist");
 																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1,"=>  USER CARD 2 ","    USER CARD 3 ");
+																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 2");
 																}
 																else
 																{
 																	removeuid(CheckKey(keyadd2));
-																	CLCD_I2C_Display(&LCD1,"  DELETE CARD 2 ","   SUCCESSFUL  ");
+																	CLCD_I2C_Display(&LCD1,"  REMOVE USCARD 2 ","   SUCCESSFUL  ");
 																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1,"=>  USER CARD 2 ","    USER CARD 3 ");
+																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 2");
 																}
 																break;
 															case 3:
 																if (CheckKey(keyadd2) == 0)
 																{
-																	CLCD_I2C_Clear(&LCD1);
-																	CLCD_I2C_SetCursor(&LCD1,0,0);
-																	CLCD_I2C_WriteString(&LCD1, "NO USER CARD 3 ");
+																	CLCD_I2C_Display(&LCD1, "     USER 3","Do Not Exist");
 																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1,"=>  USER CARD 3 ","    BACK ");
+																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 3");
 																}
 																else
 																{
 																	removeuid(CheckKey(keyadd2));
-																	CLCD_I2C_Display(&LCD1,"  DELETE CARD 3 ","   SUCCESSFUL  ");
+																	CLCD_I2C_Display(&LCD1,"  REMOVE USCARD 3 ","   SUCCESSFUL  ");
 																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1,"=>  USER CARD 3 ","    BACK ");
+																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 3");
 																}
 																break;
 															default:
@@ -1096,7 +1084,7 @@ void RFID(void)
 															}
 														}
 													}
-													CLCD_I2C_Display(&LCD1,"   ADMIN CARD","=> USER CARD");
+													CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","=> RM User Card");
 													break;
 												default:
 													backrm10 = 0;
@@ -1104,10 +1092,10 @@ void RFID(void)
 												}
 											}
 										}
-										CLCD_I2C_Display(&LCD1,"=> SELECT CARD","   SCAN CARD");
+										CLCD_I2C_Display(&LCD1,"MODE: REMOVE 1","=> Select Card");
 										break;
 									case 1:
-										CLCD_I2C_Display(&LCD1,"SCAN CARD","=>  BACK");
+										CLCD_I2C_Display(&LCD1,"PLS SCAN CARD","=> Back");
 										uint8_t rmquet = 1;
 										while (rmquet)
 										{
@@ -1126,17 +1114,15 @@ void RFID(void)
 														exitmenu = 0;
 														return;
 													}else{
-														CLCD_I2C_Display(&LCD1,"SCAN CARD","=>  BACK");
+														CLCD_I2C_Display(&LCD1,"PLS SCAN CARD","=> Back");
 													}
 
 												}
 												else
 												{
-													CLCD_I2C_Clear(&LCD1);
-													CLCD_I2C_SetCursor(&LCD1,0,0);
-													CLCD_I2C_WriteString(&LCD1, "CARD UNAVAILABLE");
+													CLCD_I2C_Display(&LCD1, "   THIS CARD","Do Not Exist");
 													HAL_Delay(1000);
-													CLCD_I2C_Display(&LCD1,"SCAN CARD","=>  BACK");
+													CLCD_I2C_Display(&LCD1,"PLS SCAN CARD","=> Back");
 												}
 											}
 											if (key_pressed =='#')
@@ -1144,7 +1130,7 @@ void RFID(void)
 												rmquet = 0;
 											}
 										}
-										CLCD_I2C_Display(&LCD1,"   SELECT CARD","=> SCAN CARD");
+										CLCD_I2C_Display(&LCD1,"MODE: REMOVE 1","=> Scan Card");
 										break;
 									default:
 										backrm1 = 0;
@@ -1152,7 +1138,7 @@ void RFID(void)
 									}
 								}
 							}
-							CLCD_I2C_Display(&LCD1,"=> REMOVE CARD","   REMOVE ALL");
+							CLCD_I2C_Display(&LCD1,"CARD: REMOVE","=> Remove 1 Card");
 							break;
 						case 1:
 							remoall();
@@ -1165,11 +1151,11 @@ void RFID(void)
 						}
 					}
 				}
-				CLCD_I2C_Display(&LCD1,"    ADD CARD","=>  REMOVE CARD");
+				CLCD_I2C_Display(&LCD1," RFID SETTINGS ","=> Remove Card");
 				break;
 			case 2:
 				checkthe();
-				CLCD_I2C_Display(&LCD1,"    REMOVE CARD","=>  CHECK CARD");
+				CLCD_I2C_Display(&LCD1," RFID SETTINGS ","=> Check Card");
 				break;
 			default:
 				exitmenu = 0;
@@ -1953,7 +1939,7 @@ uint8_t checkcountUID(void)
 void adduid(uint8_t key)
 {
 	setaddress();
-	CLCD_I2C_Display(&LCD1, "SCAN CARD", "=>  BACK");
+	CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
 	while (exitmenu)
 	{
 		if (TM_MFRC522_Check(CardID) == MI_OK)
@@ -1966,7 +1952,7 @@ void adduid(uint8_t key)
 				AddressUID += 8;
 				CLCD_I2C_Clear(&LCD1);
 				CLCD_I2C_SetCursor(&LCD1, 0, 0);
-				CLCD_I2C_WriteString(&LCD1, "SUCCESSFUL");
+				CLCD_I2C_WriteString(&LCD1, "   SUCCESSFUL");
 				HAL_Delay(1000);
 				return;
 			}
@@ -1974,9 +1960,9 @@ void adduid(uint8_t key)
 			{
 				CLCD_I2C_Clear(&LCD1);
 				CLCD_I2C_SetCursor(&LCD1, 0, 0);
-				CLCD_I2C_WriteString(&LCD1, "CARD AVAILABLE");
+				CLCD_I2C_WriteString(&LCD1, "CARD EXISTED");
 				HAL_Delay(1000);
-				CLCD_I2C_Display(&LCD1, "SCAN CARD", "=>  BACK");
+				CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
 			}
 		}
 		if (KeyPad_WaitForKeyGetChar(100)=='#')
@@ -1989,7 +1975,7 @@ void adduid(uint8_t key)
 void checkthe(void)
 {
 	exitmenu = 30;
-	CLCD_I2C_Display(&LCD1, "SCAN CARD", "=>  BACK");
+	CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
 	while (exitmenu )
 	{
 		if (TM_MFRC522_Check(CardID) == MI_OK)
@@ -1998,9 +1984,9 @@ void checkthe(void)
 			{
 				CLCD_I2C_Clear(&LCD1);
 				CLCD_I2C_SetCursor(&LCD1, 0, 0);
-				CLCD_I2C_WriteString(&LCD1, "CARD NOT ADDED");
+				CLCD_I2C_WriteString(&LCD1, "CARD DONT EXIST");
 				HAL_Delay(1000);
-				CLCD_I2C_Display(&LCD1, "SCAN CARD", "=>  BACK");
+				CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
 				HAL_Delay(1000);
 			}
 			else
@@ -2017,26 +2003,26 @@ void checkthe(void)
 					break;
 				default:
 					CLCD_I2C_SetCursor(&LCD1, 0, 0);
-					CLCD_I2C_WriteString(&LCD1, "GUEST CARD");
+					CLCD_I2C_WriteString(&LCD1, "USER CARD");
 					break;
 				}
 				switch (key2)
 				{
 				case 1:
 					CLCD_I2C_SetCursor(&LCD1, 0, 1);
-					CLCD_I2C_WriteString(&LCD1, "CARD 1");
+					CLCD_I2C_WriteString(&LCD1, "Card 1");
 					break;
 				case 2:
 					CLCD_I2C_SetCursor(&LCD1, 0, 1);
-					CLCD_I2C_WriteString(&LCD1, "CARD 2");
+					CLCD_I2C_WriteString(&LCD1, "Card 2");
 					break;
 				default:
 					CLCD_I2C_SetCursor(&LCD1, 0, 1);
-					CLCD_I2C_WriteString(&LCD1, "CARD 3");
+					CLCD_I2C_WriteString(&LCD1, "Card 3");
 					break;
 				}
 				HAL_Delay(1000);
-				CLCD_I2C_Display(&LCD1, "SCAN CARD", "=>  BACK");
+				CLCD_I2C_Display(&LCD1, "PLS SCAN CARD", "=> Back");
 			}
 		}
 		if (KeyPad_WaitForKeyGetChar(100)=='#')
@@ -2064,7 +2050,7 @@ void removeuid(uint32_t addressrm)
 }
 void startadd(void)
 {
-	CLCD_I2C_Display(&LCD1, "SCAN CARD","ADMIN CARD");
+	CLCD_I2C_Display(&LCD1, "PLS SCAN CARD","First Admin Card");
 	setaddress();
 	while (1)
 		{
@@ -2079,15 +2065,13 @@ void startadd(void)
 				}
 				else
 				{
-					CLCD_I2C_Clear(&LCD1);
-					CLCD_I2C_SetCursor(&LCD1, 0, 0);
-					CLCD_I2C_WriteString(&LCD1, "CARD AVAILABLE");
+					CLCD_I2C_Display(&LCD1, "    WARNING!", "Try another card");
 					HAL_Delay(1000);
-					CLCD_I2C_Display(&LCD1, "SCAN CARD","ADMIN CARD");
+					CLCD_I2C_Display(&LCD1, "PLS SCAN CARD","First Admin Card");
 				}
 			}
 		}
-	CLCD_I2C_Display(&LCD1, "ADD SUCCESSFUL","ADMIN CARD");
+	CLCD_I2C_Display(&LCD1, "ADD SUCCESSFUL","Admin Card 1");
 	HAL_Delay(1000);
 	CLCD_I2C_Clear(&LCD1);
 }
