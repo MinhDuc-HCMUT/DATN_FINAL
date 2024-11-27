@@ -1144,6 +1144,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevA
     SET_BIT(hi2c->Instance->CR1, I2C_CR1_STOP);
 
     hi2c->State = HAL_I2C_STATE_READY;
+
     hi2c->Mode = HAL_I2C_MODE_NONE;
 
     /* Process Unlocked */

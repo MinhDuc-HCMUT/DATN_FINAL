@@ -522,7 +522,7 @@ void RFID(void)
 {
 	exitmenu = 15;
 	uint8_t status = -1;
-	CLCD_I2C_Display(&LCD1," RFID SETTINGS ","Pls Press Down");
+	CLCD_I2C_Display(&LCD1," RFID SETTINGS ","Pls Press DOWN");
 	while (exitmenu )
 	{
 		char key_pressed = KeyPad_WaitForKeyGetChar(10);
@@ -553,7 +553,7 @@ void RFID(void)
 			switch (status)
 			{
 			case 0:
-				CLCD_I2C_Display(&LCD1,"CARD: ADD","Pls Press Down");
+				CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
 				uint8_t statusadd = 0;
 				uint8_t back = 1;
 				while (back == 1)
@@ -589,7 +589,7 @@ void RFID(void)
 						switch (statusadd)
 						{
 						case 1:
-							CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","Pls Press Down");
+							CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
 							uint8_t statusadd1 = 0;
 							uint8_t back11 = 1;
 							while (back11 == 1)
@@ -676,7 +676,7 @@ void RFID(void)
 							CLCD_I2C_Display(&LCD1,"CARD: ADD","=> Admin Card");
 							break;
 						case 2:
-							CLCD_I2C_Display(&LCD1,"MODE: ADD USER","Pls Press Down");
+							CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
 							uint8_t statusadd2 = 0;
 							uint8_t back12 = 1;
 							while (back12 == 1)
@@ -771,7 +771,7 @@ void RFID(void)
 				CLCD_I2C_Display(&LCD1," RFID SETTINGS ","=> Add Card");
 				break;
 			case 1:
-				CLCD_I2C_Display(&LCD1,"CARD: REMOVE","Pls Press Down");
+				CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
 				uint8_t statusremove = -1;
 				uint8_t backrm = 1;
 				while (backrm == 1)
@@ -803,7 +803,7 @@ void RFID(void)
 					}
 					if (key_pressed =='#')
 					{
-						CLCD_I2C_Display(&LCD1,"MODE: REMOVE 1","Pls Press Down");
+						CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
 						exitmenu = 15;
 						switch (statusremove)
 						{
@@ -842,7 +842,7 @@ void RFID(void)
 									switch (statusrm1)
 									{
 									case 0:
-										CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","Pls Press Down");
+										CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
 										uint8_t statusadd = 0;
 										uint8_t backrm10 = 1;
 										while (backrm10 == 1)
@@ -877,7 +877,7 @@ void RFID(void)
 												switch (statusadd)
 												{
 												case 1:
-													CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","Pls Press Down");
+													CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
 													uint8_t statusadd1 = 0;
 													uint8_t back11 = 1;
 													while (back11 == 1)
@@ -994,7 +994,7 @@ void RFID(void)
 													CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","=> RM Admin Card");
 													break;
 												case 2:
-													CLCD_I2C_Display(&LCD1,"MODE: RM USER","Pls Press Down");
+													CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
 													uint8_t statusadd2 = 0;
 													uint8_t back12 = 1;
 													while (back12 == 1)
@@ -1164,12 +1164,11 @@ void RFID(void)
 		}
 	}
 	CLCD_I2C_Clear(&LCD1);
-	HAL_Delay(1000);
 }
 void FACEID(void) {
 	exitmenu = Delaymenu;
 	uint8_t status = -1;
-	CLCD_I2C_Display(&LCD1, "     CARDID     ", "    THEM FACE    ");
+	CLCD_I2C_Display(&LCD1,"FACEID SETTINGS ","Pls Press DOWN");
 	while (exitmenu )
 	{
 		char key_pressed = KeyPad_WaitForKeyGetChar(10);
@@ -1177,20 +1176,17 @@ void FACEID(void) {
 		{
 			exitmenu = Delaymenu;
 			status++;
-			status = (status > 3) ? 0 : status;
+			status = (status > 2) ? 0 : status;
 			switch (status)
 			{
 			case 0:
-				CLCD_I2C_Display(&LCD1, "=>  THEM FACE", "    XOA FACE");
+				CLCD_I2C_Display(&LCD1,"FACEID SETTINGS ","=> Add FaceID");
 				break;
 			case 1:
-				CLCD_I2C_Display(&LCD1, "    THEM FACE", "=>  XOA FACE");
-				break;
-			case 2:
-				CLCD_I2C_Display(&LCD1, "    XOA FACE", "=>  TRA FACE");
+				CLCD_I2C_Display(&LCD1,"FACEID SETTINGS ","=> Remove FaceID");
 				break;
 			default:
-				CLCD_I2C_Display(&LCD1, "    TRA FACE", "=>  BACK");
+				CLCD_I2C_Display(&LCD1,"FACEID SETTINGS ","=> Back");
 				break;
 			}
 		}
@@ -1200,7 +1196,7 @@ void FACEID(void) {
 			switch (status)
 			{
 			case 0:
-				CLCD_I2C_Display(&LCD1, "    SELECT ", "FACE NGUOI LON");
+				CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
 				uint8_t statusadd = 0;
 				uint8_t back = 1;
 				while (back == 1)
@@ -1216,241 +1212,95 @@ void FACEID(void) {
 					{
 						exitmenu = Delaymenu;
 						statusadd++;
-						statusadd = (statusadd > 2) ? 0 : statusadd;
+						statusadd = (statusadd > 4) ? 0 : statusadd;
 						switch (statusadd)
 						{
 						case 1:
-							CLCD_I2C_Display(&LCD1, "=>FACE NGUOI LON", "  FACE TRE EM");
+							CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 1");
 							break;
 						case 2:
-							CLCD_I2C_Display(&LCD1, "  FACE NGUOI LON", "=>FACE TRE EM");
+							CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 2");
+							break;
+						case 3:
+							CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 3");
+							break;
+						case 4:
+							CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 4");
 							break;
 						default:
-							CLCD_I2C_Display(&LCD1, "  FACE TRE EM", "=> BACK");
+							CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> Back");
 							break;
 						}
 					}
 					if (key_pressed == '#')
 					{
 						exitmenu = Delaymenu;
+						uint8_t keyadd1 = statusadd;
 						switch (statusadd)
 						{
 						case 1:
-							CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-							uint8_t statusadd1 = 1;
-							uint8_t back11 = 1;
-							while (back11 == 1)
+							if (checkfaceid(keyadd1) != 0)
 							{
-								key_pressed = KeyPad_WaitForKeyGetChar(10);
-								if (exitmenu == 0)
-								{
-									CLCD_I2C_Clear(&LCD1);
-									HAL_Delay(1000);
-									return;
-								}
-								if (key_pressed == '*')
-								{
-									exitmenu = Delaymenu;
-									statusadd1++;
-									statusadd1 = (statusadd1 > 4) ? 0 : statusadd1;
-									switch (statusadd1)
-									{
-									case 1:
-										CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-										break;
-									case 2:
-										CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-										break;
-									case 3:
-										CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-										break;
-									case 4:
-										CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-										break;
-									default:
-										CLCD_I2C_Display(&LCD1, "    FACE 4 ", "=>  BACK ");
-										break;
-									}
-								}
-								if (key_pressed == '#')
-								{
-									exitmenu = Delaymenu;
-									uint8_t keyadd1 = (statusadd << 4) + statusadd1;
-									switch (statusadd1)
-									{
-									case 1:
-										if (checkfaceid(keyadd1) != 0)
-										{
-											CLCD_I2C_Display(&LCD1, "  DA CO FACE 1 ", "");
-											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-										}
-										else
-										{
-											addface(keyadd1);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-										}
-										break;
-									case 2:
-										if (checkfaceid(keyadd1) != 0)
-										{
-											CLCD_I2C_Display(&LCD1, "  DA CO FACE 2 ", "");
-											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-										}
-										else
-										{
-											addface(keyadd1);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-										}
-										break;
-									case 3:
-										if (checkfaceid(keyadd1) != 0)
-										{
-											CLCD_I2C_Display(&LCD1, "  DA CO FACE 3 ", "");
-											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-										}
-										else
-										{
-											addface(keyadd1);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-										}
-										break;
-									case 4:
-										if (checkfaceid(keyadd1) != 0)
-										{
-											CLCD_I2C_Display(&LCD1, "  DA CO FACE 4 ", "");
-											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-										}
-										else
-										{
-											addface(keyadd1);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-										}
-										break;
-									default:
-										back11 = 0;
-										break;
-									}
-								}
+								CLCD_I2C_Display(&LCD1,"    FACEID 1"," Face 1 Existed ");
+								HAL_Delay(1000);
+								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 1");
 							}
-							CLCD_I2C_Display(&LCD1, "=>FACE NGUOI LON", "  FACE TRE EM");
+							else
+							{
+								addface(keyadd1);
+								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 1");
+							}
 							break;
 						case 2:
-							CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-							uint8_t statusadd2 = 1;
-							uint8_t back12 = 1;
-							while (back12 == 1)
+							if (checkfaceid(keyadd1) != 0)
 							{
-								key_pressed = KeyPad_WaitForKeyGetChar(10);
-								if (exitmenu == 0)
-								{
-									CLCD_I2C_Clear(&LCD1);
-									HAL_Delay(1000);
-									return;
-								}
-								if (key_pressed == '*')
-								{
-									exitmenu = Delaymenu;
-									statusadd2++;
-									statusadd2 = (statusadd2 > 4) ? 0 : statusadd2;
-									switch (statusadd2)
-									{
-									case 1:
-										CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-										break;
-									case 2:
-										CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-										break;
-									case 3:
-										CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-										break;
-									case 4:
-										CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-										break;
-									default:
-										CLCD_I2C_Display(&LCD1, "    FACE 4 ", "=>  BACK ");
-										break;
-									}
-								}
-								if (key_pressed == '#')
-								{
-									exitmenu = Delaymenu;
-									uint8_t keyadd2 = (statusadd << 4) + statusadd2;
-									switch (statusadd2)
-									{
-									case 1:
-										if (checkfaceid(keyadd2) != 0)
-										{
-											CLCD_I2C_Display(&LCD1, "  DA CO FACE 1 ", "");
-											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-										}
-										else
-										{
-											addface(keyadd2);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-										}
-										break;
-									case 2:
-										if (checkfaceid(keyadd2) != 0)
-										{
-											CLCD_I2C_Display(&LCD1, "  DA CO FACE 2 ", "");
-											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-										}
-										else
-										{
-											addface(keyadd2);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-										}
-										break;
-									case 3:
-										if (checkfaceid(keyadd2) != 0)
-										{
-											CLCD_I2C_Display(&LCD1, "  DA CO FACE 3 ", "");
-											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-										}
-										else
-										{
-											addface(keyadd2);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-										}
-										break;
-									case 4:
-										if (checkfaceid(keyadd2) != 0)
-										{
-											CLCD_I2C_Display(&LCD1, "  DA CO FACE 4 ", "");
-											HAL_Delay(1000);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-										}
-										else
-										{
-											addface(keyadd2);
-											CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-										}
-										break;
-									default:
-										back12 = 0;
-										break;
-									}
-								}
+								CLCD_I2C_Display(&LCD1,"    FACEID 2"," Face 2 Existed ");
+								HAL_Delay(1000);
+								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 2");
 							}
-							CLCD_I2C_Display(&LCD1, "  FACE NGUOI LON", "=>FACE TRE EM");
+							else
+							{
+								addface(keyadd1);
+								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 2");
+							}
+							break;
+						case 3:
+							if (checkfaceid(keyadd1) != 0)
+							{
+								CLCD_I2C_Display(&LCD1,"    FACEID 3"," Face 3 Existed ");
+								HAL_Delay(1000);
+								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 3");
+							}
+							else
+							{
+								addface(keyadd1);
+								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 3");
+							}
+							break;
+						case 4:
+							if (checkfaceid(keyadd1) != 0)
+							{
+								CLCD_I2C_Display(&LCD1,"    FACEID 4"," Face 4 Existed ");
+								HAL_Delay(1000);
+								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 4");
+							}
+							else
+							{
+								addface(keyadd1);
+								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 4");
+							}
+							break;
 						default:
 							back = 0;
 							break;
 						}
 					}
 				}
-				CLCD_I2C_Display(&LCD1, "=>  THEM FACE", "    XOA FACE");
+				CLCD_I2C_Display(&LCD1,"FACEID SETTINGS ","=> Add FaceID");
 				break;
 			case 1:
-				CLCD_I2C_Display(&LCD1, "     SELECT ", "   XOA 1 FACE");
-				uint8_t statusremove = -1;
+				CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
+				uint8_t statusrm = 0;
 				uint8_t backrm = 1;
 				while (backrm == 1)
 				{
@@ -1464,33 +1314,28 @@ void FACEID(void) {
 					if (key_pressed == '*')
 					{
 						exitmenu = Delaymenu;
-						statusremove++;
-						statusremove = (statusremove > 2) ? 0 : statusremove;
-						switch (statusremove)
+						statusrm++;
+						statusrm = (statusrm > 2) ? 0 : statusrm;
+						switch (statusrm)
 						{
-						case 0:
-							CLCD_I2C_Display(&LCD1, "=> XOA 1 FACE", "   XOA TAT CA");
-							break;
 						case 1:
-							CLCD_I2C_Display(&LCD1, "   XOA 1 FACE", "=> XOA TAT CA");
-							CLCD_I2C_Clear(&LCD1);
-							CLCD_I2C_SetCursor(&LCD1, 0, 0);
-							CLCD_I2C_WriteString(&LCD1, "   XOA 1 FACE");
-							CLCD_I2C_SetCursor(&LCD1, 0, 1);
-							CLCD_I2C_WriteString(&LCD1, "=> XOA TAT CA");
+							CLCD_I2C_Display(&LCD1,"FACEID: REMOVE","=> Remove 1 Face");
+							break;
+						case 2:
+							CLCD_I2C_Display(&LCD1,"FACEID: REMOVE","=> Remove ALL");
 							break;
 						default:
-							CLCD_I2C_Display(&LCD1, "   XOA TAT CA", "=> BACK");
+							CLCD_I2C_Display(&LCD1,"FACEID: REMOVE","=> Back");
 							break;
 						}
 					}
 					if (key_pressed == '#')
 					{
 						exitmenu = Delaymenu;
-						switch (statusremove)
+						switch (statusrm)
 						{
-						case 0:
-							CLCD_I2C_Display(&LCD1, "=> CHON FACE", "   QUET FACE");
+						case 1:
+							CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
 							uint8_t statusrm1 = 0;
 							uint8_t backrm1 = 1;
 							while (backrm1 == 1)
@@ -1504,345 +1349,125 @@ void FACEID(void) {
 								}
 								if (key_pressed == '*')
 								{
+									exitmenu = Delaymenu;
 									statusrm1++;
-									statusrm1 = (statusrm1 > 2) ? 0 : statusrm1;
+									statusrm1 = (statusrm1 > 4) ? 0 : statusrm1;
 									switch (statusrm1)
 									{
-									case 0:
-										CLCD_I2C_Display(&LCD1, "=> CHON FACE", "   QUET FACE");
-										break;
 									case 1:
-										CLCD_I2C_Display(&LCD1, "   CHON FACE", "=> QUET FACE");
-										;
+										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove FACE 1");
+										break;
+									case 2:
+										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove FACE 2");
+										break;
+									case 3:
+										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove FACE 3");
+										break;
+									case 4:
+										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove FACE 4");
 										break;
 									default:
-										CLCD_I2C_Display(&LCD1, "   QUET FACE", "=> BACK");
+										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=>  Back ");
 										break;
 									}
 								}
 								if (key_pressed == '#')
 								{
 									exitmenu = Delaymenu;
-									switch (statusrm1)
+									uint8_t keyrm1 = statusrm1;
+									switch (keyrm1)
 									{
-									case 0:
-										CLCD_I2C_Display(&LCD1, "=>FACE NGUOI LON", "  FACE TRE EM");
-										uint8_t statusadd = 1;
-										uint8_t backrm10 = 1;
-										while (backrm10 == 1)
-										{
-											key_pressed = KeyPad_WaitForKeyGetChar(10);
-											if (exitmenu == 0)
-											{
-												CLCD_I2C_Clear(&LCD1);
-												HAL_Delay(1000);
-												return;
-											}
-											if (key_pressed == '*')
-											{
-												exitmenu = Delaymenu;
-												statusadd++;
-												statusadd = (statusadd > 2) ? 0 : statusadd;
-												switch (statusadd)
-												{
-												case 1:
-													CLCD_I2C_Display(&LCD1, "=>FACE NGUOI LON", "  FACE TRE EM");
-													break;
-												case 2:
-													CLCD_I2C_Display(&LCD1, "  FACE NGUOI LON", "=>FACE TRE EM");
-													break;
-												default:
-													CLCD_I2C_Display(&LCD1, "  FACE TRE EM", "=> BACK");
-													break;
-												}
-											}
-											if (key_pressed == '#')
-											{
-												exitmenu = Delaymenu;
-												switch (statusadd)
-												{
-												case 1:
-													CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-													uint8_t statusadd1 = 1;
-													uint8_t back11 = 1;
-													while (back11 == 1)
-													{
-														key_pressed = KeyPad_WaitForKeyGetChar(10);
-														if (exitmenu == 0)
-														{
-															CLCD_I2C_Clear(&LCD1);
-															HAL_Delay(1000);
-															return;
-														}
-														if (key_pressed == '*')
-														{
-															exitmenu = Delaymenu;
-															statusadd1++;
-															statusadd1 = (statusadd1 > 4) ? 0 : statusadd1;
-															switch (statusadd1)
-															{
-															case 1:
-																CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-																break;
-															case 2:
-																CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-																break;
-															case 3:
-																CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-																break;
-															case 4:
-																CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-																break;
-															default:
-																CLCD_I2C_Display(&LCD1, "    FACE 4 ", "=>  BACK ");
-																break;
-															}
-														}
-														if (key_pressed == '#')
-														{
-															exitmenu = Delaymenu;
-															uint8_t keyadd1 = (statusadd << 4) + statusadd1;
-															switch (statusadd1)
-															{
-															case 1:
-																if (checkfaceid(keyadd1) == 0)
-																{
-																	CLCD_I2C_Display(&LCD1, "CHUA CO FACE 1 ", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-																}
-																else
-																{
-																	removeface(checkfaceid(keyadd1));
-																	CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
-																	HAL_Delay(1000);
-																	if (checkcountUID() == 0)
-																	{
-																		startadd();
-																		exitmenu = 0;
-																	}
-																	else
-																	{
-																		CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-																	}
-																}
-																break;
-															case 2:
-																if (checkfaceid(keyadd1) == 0)
-																{
-																	CLCD_I2C_Display(&LCD1, "CHUA CO FACE 2 ", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-																}
-																else
-																{
-																	removeface(checkfaceid(keyadd1));
-																	CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
-																	HAL_Delay(1000);
-																	if (checkcountUID() == 0)
-																	{
-																		startadd();
-																		exitmenu = 0;
-																	}
-																	else
-																	{
-																		CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-																	}
-																}
-																break;
-															case 3:
-																if (checkfaceid(keyadd1) == 0)
-																{
-																	CLCD_I2C_Display(&LCD1, "CHUA CO FACE 3 ", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-																}
-																else
-																{
-																	removeface(checkfaceid(keyadd1));
-																	CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
-																	HAL_Delay(1000);
-																	if (checkcountUID() == 0)
-																	{
-																		startadd();
-																		exitmenu = 0;
-																	}
-																	else
-																	{
-																		CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-																	}
-																}
-																break;
-															case 4:
-																if (checkfaceid(keyadd1) == 0)
-																{
-																	CLCD_I2C_Display(&LCD1, "CHUA CO FACE 4 ", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-																}
-																else
-																{
-																	removeface(checkfaceid(keyadd1));
-																	CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
-																	HAL_Delay(1000);
-																	if (checkcountUID() == 0)
-																	{
-																		startadd();
-																		exitmenu = 0;
-																	}
-																	else
-																	{
-																		CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-																	}
-																}
-																break;
-															default:
-																back11 = 0;
-																break;
-															}
-														}
-													}
-													CLCD_I2C_Display(&LCD1, "=>FACE NGUOI LON", "  FACE TRE EM");
-													break;
-												case 2:
-													CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-													uint8_t statusadd2 = 1;
-													uint8_t back12 = 1;
-													while (back12 == 1)
-													{
-														key_pressed = KeyPad_WaitForKeyGetChar(10);
-														if (exitmenu == 0)
-														{
-															CLCD_I2C_Clear(&LCD1);
-															HAL_Delay(1000);
-															return;
-														}
-														if (key_pressed == '*')
-														{
-															exitmenu = Delaymenu;
-															statusadd2++;
-															statusadd2 = (statusadd2 > 4) ? 0 : statusadd2;
-															switch (statusadd2)
-															{
-															case 1:
-																CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-																break;
-															case 2:
-																CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-																break;
-															case 3:
-																CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-																break;
-															case 4:
-																CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-																break;
-															default:
-																CLCD_I2C_Display(&LCD1, "    FACE 4 ", "=>  BACK ");
-																break;
-															}
-														}
-														if (key_pressed == '#')
-														{
-															exitmenu = Delaymenu;
-															uint8_t keyadd2 = (statusadd << 4) + statusadd2;
-															switch (statusadd2)
-															{
-															case 1:
-																if (checkfaceid(keyadd2) == 0)
-																{
-																	CLCD_I2C_Display(&LCD1, "CHUA CO FACE 1 ", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-																}
-																else
-																{
-																	removeface(checkfaceid(keyadd2));
-																	CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 1 ", "    FACE 2 ");
-																}
-																break;
-															case 2:
-																if (checkfaceid(keyadd2) == 0)
-																{
-																	CLCD_I2C_Display(&LCD1, "CHUA CO FACE 2 ", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-																}
-																else
-																{
-																	removeface(checkfaceid(keyadd2));
-																	CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 2 ", "    FACE 3 ");
-																}
-																break;
-															case 3:
-																if (checkfaceid(keyadd2) == 0)
-																{
-																	CLCD_I2C_Display(&LCD1, "CHUA CO FACE 3 ", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-																}
-																else
-																{
-																	removeface(checkfaceid(keyadd2));
-																	CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 3 ", "    FACE 4 ");
-																}
-																break;
-															case 4:
-																if (checkfaceid(keyadd2) == 0)
-																{
-																	CLCD_I2C_Display(&LCD1, "CHUA CO FACE 4 ", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-																}
-																else
-																{
-																	removeface(checkfaceid(keyadd2));
-																	CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
-																	HAL_Delay(1000);
-																	CLCD_I2C_Display(&LCD1, "=>  FACE 4 ", "    BACK ");
-																}
-																break;
-															default:
-																back12 = 0;
-																break;
-															}
-														}
-													}
-													CLCD_I2C_Display(&LCD1, "  FACE NGUOI LON", "=>FACE TRE EM");
-													break;
-												default:
-													backrm10 = 0;
-													break;
-												}
-											}
-										}
-										CLCD_I2C_Display(&LCD1, "=> CHON FACE", "   QUET FACE");
-										break;
 									case 1:
-										CLCD_I2C_Display(&LCD1, "QUET FACE", "=>  BACK ");
-										CDC_Transmit_FS("Rem.00", 6);
-										uint8_t rmquet = 1;
-										while (rmquet)
+										if (checkfaceid(keyrm1) == 0)
 										{
-											key_pressed = KeyPad_WaitForKeyGetChar(10);
-											if( Rx_Buffer[0] == 'T'){
-												CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
-												HAL_Delay(2000);
-												memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
-												CLCD_I2C_Display(&LCD1, "QUET FACE", "=>  BACK ");
-											}
-											if (key_pressed == '#')
+											CLCD_I2C_Display(&LCD1, "    FaceID 1", "Do Not Exist");
+											HAL_Delay(1000);
+											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 1");
+										}
+										else
+										{
+											removeface(checkfaceid(keyrm1));
+											CLCD_I2C_Display(&LCD1,"REMOVE FACEID 1","   SUCCESSFUL  ");
+											HAL_Delay(1000);
+											if (checkcountUID() == 0)
 											{
-												rmquet = 0;
+												startadd();
+												exitmenu = 0;
+											}
+											else
+											{
+												CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 1");
 											}
 										}
-										CDC_Transmit_FS("Exit  ", 6);
-										CLCD_I2C_Display(&LCD1, "   CHON FACE", "=> QUET FACE");;
+										break;
+									case 2:
+										if (checkfaceid(keyrm1) == 0)
+										{
+											CLCD_I2C_Display(&LCD1, "    FaceID 2", "Do Not Exist");
+											HAL_Delay(1000);
+											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 2");
+										}
+										else
+										{
+											removeface(checkfaceid(keyrm1));
+											CLCD_I2C_Display(&LCD1,"REMOVE FACEID 2","   SUCCESSFUL  ");
+											HAL_Delay(1000);
+											if (checkcountUID() == 0)
+											{
+												startadd();
+												exitmenu = 0;
+											}
+											else
+											{
+												CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 2");
+											}
+										}
+										break;
+									case 3:
+										if (checkfaceid(keyrm1) == 0)
+										{
+											CLCD_I2C_Display(&LCD1, "    FaceID 3", "Do Not Exist");
+											HAL_Delay(1000);
+											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 3");
+										}
+										else
+										{
+											removeface(checkfaceid(keyrm1));
+											CLCD_I2C_Display(&LCD1,"REMOVE FACEID 3","   SUCCESSFUL  ");
+											HAL_Delay(1000);
+											if (checkcountUID() == 0)
+											{
+												startadd();
+												exitmenu = 0;
+											}
+											else
+											{
+												CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 3");
+											}
+										}
+										break;
+									case 4:
+										if (checkfaceid(keyrm1) == 0)
+										{
+											CLCD_I2C_Display(&LCD1, "    FaceID 4", "Do Not Exist");
+											HAL_Delay(1000);
+											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 4");
+										}
+										else
+										{
+											removeface(checkfaceid(keyrm1));
+											CLCD_I2C_Display(&LCD1,"REMOVE FACEID 4","   SUCCESSFUL  ");
+											HAL_Delay(1000);
+											if (checkcountUID() == 0)
+											{
+												startadd();
+												exitmenu = 0;
+											}
+											else
+											{
+												CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 4");
+											}
+										}
 										break;
 									default:
 										backrm1 = 0;
@@ -1850,43 +1475,40 @@ void FACEID(void) {
 									}
 								}
 							}
-							CLCD_I2C_Display(&LCD1, "=> XOA 1 FACE", "   XOA TAT CA");
+							CLCD_I2C_Display(&LCD1,"FACEID: REMOVE","=> Remove 1 Face");
 							break;
-						case 1:
+						case 2:
 							sprintf(Tx_Buffer , "Rem.99" );
 							CDC_Transmit_FS(Tx_Buffer, 6);
 							CLCD_I2C_Display(&LCD1, "WAITING....", "");
 							exitmenu = 60;
 							while(exitmenu != 0){
 								if(Rx_Buffer[0] == 'T'){
-									CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
+									CLCD_I2C_Display(&LCD1, "REMOVE ALL FACE","   SUCCESSFUL  ");
 									memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
 									break;
 								}
 							}
 							exitmenu = 0;
+							// CLCD_I2C_Display(&LCD1,"FACEID: REMOVE","=> Remove ALL");
 							break;
 						default:
-							backrm = 0;
+							backrm=0;
 							break;
 						}
 					}
 				}
-				CLCD_I2C_Display(&LCD1, "    THEM FACE", "=>  XOA FACE");
-				break;
-			case 2:
-				checkface();
-				CDC_Transmit_FS("Exit  ", 6);
-				CLCD_I2C_Display(&LCD1, "    XOA FACE", "=>  TRA FACE");
+				CLCD_I2C_Display(&LCD1,"FACEID SETTINGS ","=> Remove FaceID");
 				break;
 			default:
-				exitmenu = 0;
+				exitmenu=0;
 				break;
 			}
 		}
 	}
 	CLCD_I2C_Clear(&LCD1);
-}void FINGER()
+}
+void FINGER()
 {
 	add_finger();
 }
@@ -2238,7 +1860,7 @@ void startface(void)
 }
 void addface(uint8_t key)
 {
-	sprintf(Tx_Buffer , "Add.%2d", key );
+	sprintf(Tx_Buffer , "Add.%d", key );
 	CDC_Transmit_FS(Tx_Buffer, 6);
 	CLCD_I2C_Display(&LCD1, "WAITING....", "");
 	exitmenu = 60;
@@ -2287,71 +1909,71 @@ uint8_t checkfaceid(uint8_t key){
 
 }
 
-void checkface(void)
-{
-	CDC_Transmit_FS("Che.00", 6);
-	exitmenu = 60;
-	CLCD_I2C_Display(&LCD1, "QUET FACE", "=>  BACK");
-	while (exitmenu )
-	{
-		if (Rx_Buffer[0] != 0)
-		{
-
-			if (Rx_Buffer[0] == 'F')
-			{
-				CLCD_I2C_Display(&LCD1, "FACE CHUA THEM", "");
-				HAL_Delay(1000);
-				CLCD_I2C_Display(&LCD1, "QUET FACE", "=>  BACK");
-				HAL_Delay(1000);
-			}
-			else
-			{
-				uint8_t key = (Rx_Buffer[5] -48)*10 + (Rx_Buffer[6] -48) ;
-				uint8_t key2 = key & 0x0f;
-				uint8_t key1 = key >> 4;
-				CLCD_I2C_Clear(&LCD1);
-				switch (key1)
-				{
-				case 1:
-					CLCD_I2C_SetCursor(&LCD1, 0, 0);
-					CLCD_I2C_WriteString(&LCD1, "FACE NGUOI LON");
-					break;
-				default:
-					CLCD_I2C_SetCursor(&LCD1, 0, 0);
-					CLCD_I2C_WriteString(&LCD1, "FACE TRE EM");
-					break;
-				}
-				switch (key2)
-				{
-				case 1:
-					CLCD_I2C_SetCursor(&LCD1, 0, 1);
-					CLCD_I2C_WriteString(&LCD1, "FACE 1");
-					break;
-				case 2:
-					CLCD_I2C_SetCursor(&LCD1, 0, 1);
-					CLCD_I2C_WriteString(&LCD1, "FACE 2");
-					break;
-				case 3:
-					CLCD_I2C_SetCursor(&LCD1, 0, 1);
-					CLCD_I2C_WriteString(&LCD1, "FACE 3");
-					break;
-				default:
-					CLCD_I2C_SetCursor(&LCD1, 0, 1);
-					CLCD_I2C_WriteString(&LCD1, "FACE 4");
-					break;
-				}
-				HAL_Delay(2000);
-				CLCD_I2C_Display(&LCD1, "QUET FACE", "=>  BACK");
-			}
-			memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
-		}
-		if (KeyPad_WaitForKeyGetChar(100)=='#')
-		{
-			break;
-		}
-	}
-	CDC_Transmit_FS("Exit  ", 6);
-}
+//void checkface(void)
+//{
+//	CDC_Transmit_FS("Che.00", 6);
+//	exitmenu = 60;
+//	CLCD_I2C_Display(&LCD1, "QUET FACE", "=>  BACK");
+//	while (exitmenu )
+//	{
+//		if (Rx_Buffer[0] != 0)
+//		{
+//
+//			if (Rx_Buffer[0] == 'F')
+//			{
+//				CLCD_I2C_Display(&LCD1, "FACE CHUA THEM", "");
+//				HAL_Delay(1000);
+//				CLCD_I2C_Display(&LCD1, "QUET FACE", "=>  BACK");
+//				HAL_Delay(1000);
+//			}
+//			else
+//			{
+//				uint8_t key = (Rx_Buffer[5] -48)*10 + (Rx_Buffer[6] -48) ;
+//				uint8_t key2 = key & 0x0f;
+//				uint8_t key1 = key >> 4;
+//				CLCD_I2C_Clear(&LCD1);
+//				switch (key1)
+//				{
+//				case 1:
+//					CLCD_I2C_SetCursor(&LCD1, 0, 0);
+//					CLCD_I2C_WriteString(&LCD1, "FACE NGUOI LON");
+//					break;
+//				default:
+//					CLCD_I2C_SetCursor(&LCD1, 0, 0);
+//					CLCD_I2C_WriteString(&LCD1, "FACE TRE EM");
+//					break;
+//				}
+//				switch (key2)
+//				{
+//				case 1:
+//					CLCD_I2C_SetCursor(&LCD1, 0, 1);
+//					CLCD_I2C_WriteString(&LCD1, "FACE 1");
+//					break;
+//				case 2:
+//					CLCD_I2C_SetCursor(&LCD1, 0, 1);
+//					CLCD_I2C_WriteString(&LCD1, "FACE 2");
+//					break;
+//				case 3:
+//					CLCD_I2C_SetCursor(&LCD1, 0, 1);
+//					CLCD_I2C_WriteString(&LCD1, "FACE 3");
+//					break;
+//				default:
+//					CLCD_I2C_SetCursor(&LCD1, 0, 1);
+//					CLCD_I2C_WriteString(&LCD1, "FACE 4");
+//					break;
+//				}
+//				HAL_Delay(2000);
+//				CLCD_I2C_Display(&LCD1, "QUET FACE", "=>  BACK");
+//			}
+//			memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
+//		}
+//		if (KeyPad_WaitForKeyGetChar(100)=='#')
+//		{
+//			break;
+//		}
+//	}
+//	CDC_Transmit_FS("Exit  ", 6);
+//}
 /* USER CODE END 4 */
 
 /**
