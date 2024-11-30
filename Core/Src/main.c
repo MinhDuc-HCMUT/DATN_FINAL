@@ -103,6 +103,9 @@ void enter_password(char *password);
 void change_password(void);
 uint8_t check_password(char *password);
 void set_default_password(void);
+void remove_id_finger();
+void remove_all_finger();
+void reset_fingerprint_module();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -322,7 +325,7 @@ int main(void)
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0}; // Corrected type
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
@@ -1538,10 +1541,60 @@ void FACEID(void) {
 	}
 	CLCD_I2C_Clear(&LCD1);
 }
-void FINGER()
-{
-	add_finger();
+void FINGER(void) {
+	exitmenu = Delaymenu;
+	uint8_t status = -1;
+	CLCD_I2C_Display(&LCD1,"FINGER SETTING ","Pls Press DOWN");
+	while (exitmenu )
+	{
+		char key_pressed = KeyPad_WaitForKeyGetChar(10);
+		if (key_pressed == '*')
+		{
+			exitmenu = Delaymenu;
+			status++;
+			status = (status > 3) ? 0 : status;
+			switch (status)
+			{
+			case 0:
+	            CLCD_I2C_Display(&LCD1,"FINGER SETTING ","=> Add Finger");
+				break;
+			case 1:
+	            CLCD_I2C_Display(&LCD1,"FINGER SETTING ","=> Remove Finger");
+				break;
+            case 2:
+                CLCD_I2C_Display(&LCD1,"FINGER SETTING ","=> Remove All");
+                break;
+			default:
+	            CLCD_I2C_Display(&LCD1,"FINGER SETTING ","=> Back");
+				break;
+			}
+		}
+		if (key_pressed == '#')
+		{
+			exitmenu = Delaymenu;
+			switch (status)
+			{
+			case 0:
+                add_finger();
+				CLCD_I2C_Display(&LCD1,"FINGER SETTING ","=> Add Finger");
+                break;
+            case 1:
+                remove_id_finger();
+				CLCD_I2C_Display(&LCD1,"FINGER SETTING ","=> Remove Finger");
+                break;
+            case 2:
+                remove_all_finger();
+				CLCD_I2C_Display(&LCD1,"FINGER SETTING ","=> Remove All");
+                break;
+            default:
+                exitmenu = 0;
+                break;
+            }
+        }
+    }
 }
+
+
 void PASSWORD(void) {
 	exitmenu = Delaymenu;
 	uint8_t status = -1;
@@ -1573,12 +1626,12 @@ void PASSWORD(void) {
 			switch (status)
 			{
 			case 0:
-                exitmenu=40;
                 change_password();
+	            CLCD_I2C_Display(&LCD1,"PASSWORD SETTING ","=> Change Pass");
                 break;
             case 1:
-                exitmenu=40;
                 set_default_password();
+	            CLCD_I2C_Display(&LCD1,"PASSWORD SETTING ","=> Reset Pass");
                 break;
             default:
                 exitmenu = 0;
@@ -2049,6 +2102,80 @@ void set_default_password(void) {
     exitmenu=0;
 }
 
+void remove_id_finger()
+{
+    uint8_t id = 0;
+    CLCD_I2C_Display(&LCD1, "Enter ID to remove:", "ID= ");
+    while (1)
+    {
+        char key = KeyPad_WaitForKeyGetChar(10);
+        if (key >= '1' && key <= '9')
+        {
+            id = key - '0';
+            break;
+        }
+    }
+    ID = id;
+    CLCD_I2C_SetCursor(&LCD1, 4, 1);
+    CLCD_I2C_WriteChar(&LCD1, '0' + ID);
+    HAL_Delay(1000);
+
+    CLCD_I2C_Display(&LCD1, "Removing Finger", "");
+    uint8_t result = delete_finger(ID);
+    if (result == 0x00)
+    {
+        CLCD_I2C_Display(&LCD1, "Remove Finger", "Successfully");
+        // Ensure the fingerprint is removed from memory
+        fingerprint_detected = 0;
+        // Reset the fingerprint module
+        reset_fingerprint_module();
+    }
+    else
+    {
+        char buffer[16];
+        snprintf(buffer, sizeof(buffer), "Error Code: %02X", result);
+        CLCD_I2C_Display(&LCD1, "Remove Finger", buffer);
+    }
+    HAL_Delay(2000);
+    CLCD_I2C_Clear(&LCD1);
+}
+
+void remove_all_finger()
+{
+    CLCD_I2C_Display(&LCD1, "Removing All", "Fingers");
+    uint8_t result;
+    for (uint8_t id = 0; id <= 9; id++)
+    {
+        result = delete_finger(id);
+        if (result != 0x00)
+        {
+            char buffer[16];
+            snprintf(buffer, sizeof(buffer), "Error Code: %02X", result);
+            CLCD_I2C_Display(&LCD1, "Remove Finger", buffer);
+            HAL_Delay(2000);
+            CLCD_I2C_Clear(&LCD1);
+            return;
+        }
+    }
+    CLCD_I2C_Display(&LCD1, "   REMOVE ALL", "  SUCCESSFULLY");
+    // Ensure all fingerprints are removed from memory
+    fingerprint_detected = 0;
+    // Reset the fingerprint module
+    reset_fingerprint_module();
+    HAL_Delay(2000);
+    CLCD_I2C_Clear(&LCD1);
+}
+
+void reset_fingerprint_module()
+{
+    // Add code to reset the fingerprint module
+    // This can be a hardware reset or a software reset command
+    // Example:
+    // HAL_GPIO_WritePin(FP_RESET_GPIO_Port, FP_RESET_Pin, GPIO_PIN_RESET);
+    // HAL_Delay(100);
+    // HAL_GPIO_WritePin(FP_RESET_GPIO_Port, FP_RESET_Pin, GPIO_PIN_SET);
+}
+
 /* USER CODE END 4 */
 
 /**
@@ -2084,3 +2211,4 @@ void assert_failed(uint8_t *file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

@@ -11,3 +11,5 @@
 ../Core/Src/fingerprint.c:124:5:search1	1
 ../Core/Src/fingerprint.c:142:5:empty	1
 ../Core/Src/fingerprint.c:156:5:del	1
+../Core/Src/fingerprint.c:171:9:delete_finger	1
+../Core/Src/fingerprint.c:176:9:delete_all_fingers	4

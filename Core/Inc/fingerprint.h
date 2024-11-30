@@ -14,5 +14,7 @@ int search(void);
 int empty(void);
 int search1(void);
 int del(uint8_t id);
+uint8_t delete_finger(uint8_t id);
+uint8_t delete_all_fingers();
 
 #endif

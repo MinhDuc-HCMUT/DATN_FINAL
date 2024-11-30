@@ -156,15 +156,65 @@ int empty(void)
 int del(uint8_t id)
 {
 	uint8_t sum1;
-   sum1= 0x15 + id;
-   USART_SendByte(0xEF);USART_SendByte(0x01);
-   USART_SendByte(0xFF);USART_SendByte(0xFF);USART_SendByte(0xFF);USART_SendByte(0xFF);
-   USART_SendByte(0x01);
-   USART_SendByte(0x00);USART_SendByte(0x07);
-   USART_SendByte(0x0C);
-   USART_SendByte(0x00);USART_SendByte(id);
-	 USART_SendByte(0x00);USART_SendByte(0x01);
-   USART_SendByte(0x00);USART_SendByte(sum1);
-   return receive_finger(12);
+    sum1 = 0x15 + id;
+    USART_SendByte(0xEF);USART_SendByte(0x01);
+    USART_SendByte(0xFF);USART_SendByte(0xFF);USART_SendByte(0xFF);USART_SendByte(0xFF);
+    USART_SendByte(0x01);
+    USART_SendByte(0x00);USART_SendByte(0x07);
+    USART_SendByte(0x0C);
+    USART_SendByte(0x00);USART_SendByte(id);
+    USART_SendByte(0x00);USART_SendByte(0x01);
+    USART_SendByte(0x00);USART_SendByte(sum1);
+    return receive_finger(12);
+}
 
+uint8_t delete_finger(uint8_t id)
+{
+    return del(id);
+}
+
+uint8_t delete_all_fingers()
+{
+    uint8_t buffer[14];
+    buffer[0] = 0xEF; // Start code
+    buffer[1] = 0x01; // Start code
+    buffer[2] = 0xFF; // Address
+    buffer[3] = 0xFF; // Address
+    buffer[4] = 0xFF; // Address
+    buffer[5] = 0xFF; // Address
+    buffer[6] = 0x01; // Command packet
+    buffer[7] = 0x00; // Packet length
+    buffer[8] = 0x07; // Packet length
+    buffer[9] = 0x0D; // Empty command
+    buffer[10] = 0x00; // Start ID
+    buffer[11] = 0x00; // Number of templates to delete (0 for all)
+
+    uint16_t checksum = 0;
+    for (int i = 6; i < 12; i++)
+    {
+        checksum += buffer[i];
+    }
+    buffer[12] = (checksum >> 8) & 0xFF; // Checksum high byte
+    buffer[13] = checksum & 0xFF;        // Checksum low byte
+
+    HAL_UART_Transmit(&huart1, buffer, 14, HAL_MAX_DELAY);
+
+    uint8_t response[12];
+    HAL_StatusTypeDef status = HAL_UART_Receive(&huart1, response, 12, 5000); // Increase timeout
+
+    if (status == HAL_OK)
+    {
+        if (response[9] == 0x00)
+        {
+            return 0x00; // Success
+        }
+        else
+        {
+            return response[9]; // Error code from the module
+        }
+    }
+    else
+    {
+        return 0xFF; // UART receive error
+    }
 }

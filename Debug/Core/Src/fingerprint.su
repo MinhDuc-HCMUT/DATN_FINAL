@@ -11,3 +11,5 @@
 ../Core/Src/fingerprint.c:124:5:search1	8	static
 ../Core/Src/fingerprint.c:142:5:empty	8	static
 ../Core/Src/fingerprint.c:156:5:del	24	static
+../Core/Src/fingerprint.c:171:9:delete_finger	16	static
+../Core/Src/fingerprint.c:176:9:delete_all_fingers	48	static
