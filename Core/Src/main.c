@@ -54,7 +54,7 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-int8_t Rx_Buffer[128];
+volatile int8_t Rx_Buffer[128];
 char Tx_Buffer[6];
 CLCD_I2C_Name LCD1;
 uint8_t CardID[MFRC522_MAX_LEN];
@@ -92,6 +92,11 @@ void startadd(void);
 void setaddress(void);
 void remoall(void);
 void resetflash(void);
+void add_finger();
+void read_finger();
+void startface(void);
+void addface(uint8_t key);
+void removeface(uint8_t key);
 uint8_t checkfaceid(uint8_t key);
 /* USER CODE END PFP */
 
@@ -173,6 +178,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  CLCD_I2C_Clear(&LCD1);
       CLCD_I2C_SetCursor(&LCD1, 0, 0);
       CLCD_I2C_WriteString(&LCD1, " SCAN YOUR CARD");
 
@@ -244,6 +250,10 @@ int main(void)
               CLCD_I2C_WriteString(&LCD1, "   WRONG CARD");
               HAL_Delay(3000);
           }
+      }
+      else if(Rx_Buffer[0]!= 0)
+      {
+    	  startface();
       }
 
       // Kiểm tra trạng thái vân tay định kỳ
@@ -919,7 +929,7 @@ void RFID(void)
 															case 1:
 																if (CheckKey(keyadd1) == 0)
 																{
-																	CLCD_I2C_Display(&LCD1, "    ADMIN 1", "Do Not Exist");
+																	CLCD_I2C_Display(&LCD1, "    ADMIN 1", "  Do Not Exist");
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 1");
 																}
@@ -942,7 +952,7 @@ void RFID(void)
 															case 2:
 																if (CheckKey(keyadd1) == 0)
 																{
-																	CLCD_I2C_Display(&LCD1, "    ADMIN 2", "Do Not Exist");
+																	CLCD_I2C_Display(&LCD1, "    ADMIN 2", "  Do Not Exist");
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 2");
 																}
@@ -965,7 +975,7 @@ void RFID(void)
 															case 3:
 																if (CheckKey(keyadd1) == 0)
 																{
-																	CLCD_I2C_Display(&LCD1, "    ADMIN 3", "Do Not Exist");
+																	CLCD_I2C_Display(&LCD1, "    ADMIN 3", "  Do Not Exist");
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 3");
 																}
@@ -1036,7 +1046,7 @@ void RFID(void)
 															case 1:
 																if (CheckKey(keyadd2) == 0)
 																{
-																	CLCD_I2C_Display(&LCD1, "     USER 1","Do Not Exist");
+																	CLCD_I2C_Display(&LCD1, "     USER 1","  Do Not Exist");
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 1");
 																}
@@ -1051,7 +1061,7 @@ void RFID(void)
 															case 2:
 																if (CheckKey(keyadd2) == 0)
 																{
-																	CLCD_I2C_Display(&LCD1, "     USER 2","Do Not Exist");
+																	CLCD_I2C_Display(&LCD1, "     USER 2","  Do Not Exist");
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 2");
 																}
@@ -1066,7 +1076,7 @@ void RFID(void)
 															case 3:
 																if (CheckKey(keyadd2) == 0)
 																{
-																	CLCD_I2C_Display(&LCD1, "     USER 3","Do Not Exist");
+																	CLCD_I2C_Display(&LCD1, "     USER 3","  Do Not Exist");
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 3");
 																}
@@ -1120,7 +1130,7 @@ void RFID(void)
 												}
 												else
 												{
-													CLCD_I2C_Display(&LCD1, "   THIS CARD","Do Not Exist");
+													CLCD_I2C_Display(&LCD1, "   THIS CARD","  Do Not Exist");
 													HAL_Delay(1000);
 													CLCD_I2C_Display(&LCD1,"PLS SCAN CARD","=> Back");
 												}
@@ -1355,16 +1365,16 @@ void FACEID(void) {
 									switch (statusrm1)
 									{
 									case 1:
-										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove FACE 1");
+										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 1");
 										break;
 									case 2:
-										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove FACE 2");
+										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 2");
 										break;
 									case 3:
-										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove FACE 3");
+										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 3");
 										break;
 									case 4:
-										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove FACE 4");
+										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 4");
 										break;
 									default:
 										CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=>  Back ");
@@ -1380,93 +1390,61 @@ void FACEID(void) {
 									case 1:
 										if (checkfaceid(keyrm1) == 0)
 										{
-											CLCD_I2C_Display(&LCD1, "    FaceID 1", "Do Not Exist");
+											CLCD_I2C_Display(&LCD1, "    FaceID 1", "  Do Not Exist");
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 1");
 										}
 										else
 										{
-											removeface(checkfaceid(keyrm1));
+											removeface(keyrm1);
 											CLCD_I2C_Display(&LCD1,"REMOVE FACEID 1","   SUCCESSFUL  ");
 											HAL_Delay(1000);
-											if (checkcountUID() == 0)
-											{
-												startadd();
-												exitmenu = 0;
-											}
-											else
-											{
-												CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 1");
-											}
+											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 1");
 										}
 										break;
 									case 2:
 										if (checkfaceid(keyrm1) == 0)
 										{
-											CLCD_I2C_Display(&LCD1, "    FaceID 2", "Do Not Exist");
+											CLCD_I2C_Display(&LCD1, "    FaceID 2", "  Do Not Exist");
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 2");
 										}
 										else
 										{
-											removeface(checkfaceid(keyrm1));
+											removeface(keyrm1);
 											CLCD_I2C_Display(&LCD1,"REMOVE FACEID 2","   SUCCESSFUL  ");
 											HAL_Delay(1000);
-											if (checkcountUID() == 0)
-											{
-												startadd();
-												exitmenu = 0;
-											}
-											else
-											{
-												CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 2");
-											}
+											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 2");
 										}
 										break;
 									case 3:
 										if (checkfaceid(keyrm1) == 0)
 										{
-											CLCD_I2C_Display(&LCD1, "    FaceID 3", "Do Not Exist");
+											CLCD_I2C_Display(&LCD1, "    FaceID 3", "  Do Not Exist");
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 3");
 										}
 										else
 										{
-											removeface(checkfaceid(keyrm1));
+											removeface(keyrm1);
 											CLCD_I2C_Display(&LCD1,"REMOVE FACEID 3","   SUCCESSFUL  ");
 											HAL_Delay(1000);
-											if (checkcountUID() == 0)
-											{
-												startadd();
-												exitmenu = 0;
-											}
-											else
-											{
-												CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 3");
-											}
+											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 3");
 										}
 										break;
 									case 4:
 										if (checkfaceid(keyrm1) == 0)
 										{
-											CLCD_I2C_Display(&LCD1, "    FaceID 4", "Do Not Exist");
+											CLCD_I2C_Display(&LCD1, "    FaceID 4", "  Do Not Exist");
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 4");
 										}
 										else
 										{
-											removeface(checkfaceid(keyrm1));
+											removeface(keyrm1);
 											CLCD_I2C_Display(&LCD1,"REMOVE FACEID 4","   SUCCESSFUL  ");
 											HAL_Delay(1000);
-											if (checkcountUID() == 0)
-											{
-												startadd();
-												exitmenu = 0;
-											}
-											else
-											{
-												CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 4");
-											}
+											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 4");
 										}
 										break;
 									default:
@@ -1478,13 +1456,15 @@ void FACEID(void) {
 							CLCD_I2C_Display(&LCD1,"FACEID: REMOVE","=> Remove 1 Face");
 							break;
 						case 2:
-							sprintf(Tx_Buffer , "Rem.99" );
-							CDC_Transmit_FS(Tx_Buffer, 6);
+							sprintf(Tx_Buffer , "Del.ALL" );
+							CDC_Transmit_FS(Tx_Buffer, 7);
 							CLCD_I2C_Display(&LCD1, "WAITING....", "");
 							exitmenu = 60;
+							memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
 							while(exitmenu != 0){
 								if(Rx_Buffer[0] == 'T'){
 									CLCD_I2C_Display(&LCD1, "REMOVE ALL FACE","   SUCCESSFUL  ");
+									HAL_Delay(2000);
 									memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
 									break;
 								}
@@ -1847,30 +1827,33 @@ void read_finger()
 }
 void startface(void)
 {
-	if(Rx_Buffer[0] == 'T'){
+	if(Rx_Buffer[0] == 'Y'){
         CLCD_I2C_Clear(&LCD1);
         CLCD_I2C_SetCursor(&LCD1, 0, 0);
         CLCD_I2C_WriteString(&LCD1, "    WELCOME");
-	}else if(Rx_Buffer[0] == 'F'){
-        CLCD_I2C_Clear(&LCD1);
-        CLCD_I2C_SetCursor(&LCD1, 0, 0);
-        CLCD_I2C_WriteString(&LCD1, "FALSE FACE");
+        HAL_Delay(2000);
+	}else if(Rx_Buffer[0] == 'N'){
+		CLCD_I2C_Display(&LCD1, "  WRONG FACEID", "CAN NOT ACCESS");
+        HAL_Delay(2000);
 	}
 	memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
 }
 void addface(uint8_t key)
 {
+	memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
 	sprintf(Tx_Buffer , "Add.%d", key );
-	CDC_Transmit_FS(Tx_Buffer, 6);
+	CDC_Transmit_FS(Tx_Buffer, 5);
 	CLCD_I2C_Display(&LCD1, "WAITING....", "");
 	exitmenu = 60;
 	while(exitmenu != 0){
 		if(Rx_Buffer[0] == 'T'){
-			CLCD_I2C_Display(&LCD1, "THEM THANH CONG", "");
+			CLCD_I2C_Display(&LCD1, "   ADD FACEID", "   SUCCESSFUL");
+			HAL_Delay(2000);
 			break;
 		}
 		else if(Rx_Buffer[0] == 'F'){
-			CLCD_I2C_Display(&LCD1, "FACE DA TON TAI", "");
+			CLCD_I2C_Display(&LCD1, "ERROR: UNKNOWN", "");
+			HAL_Delay(2000);
 			break;
 		}
 	}
@@ -1878,102 +1861,42 @@ void addface(uint8_t key)
 }
 void removeface(uint8_t key)
 {
-	sprintf(Tx_Buffer , "Rem.%2d", key );
-	CDC_Transmit_FS(Tx_Buffer, 6);
+	memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
+	sprintf(Tx_Buffer , "Rem.%d", key );
+	CDC_Transmit_FS(Tx_Buffer, 5);
 	CLCD_I2C_Display(&LCD1, "WAITING....", "");
 	exitmenu = 60;
 	while(exitmenu != 0){
 		if(Rx_Buffer[0] == 'T'){
 			CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
+			HAL_Delay(2000);
 			break;
 		}
 		else if(Rx_Buffer[0] == 'F'){
-			CLCD_I2C_Display(&LCD1, "FACE CHUA THEM", "");
+			CLCD_I2C_Display(&LCD1, "ERROR: UNKOWN", "");
+			HAL_Delay(2000);
 			break;
 		}
 	}
 	memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
 }
 uint8_t checkfaceid(uint8_t key){
-	sprintf(Tx_Buffer , "Che.%2d", key );
-	CDC_Transmit_FS(Tx_Buffer, 6);
+	memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
+	sprintf(Tx_Buffer , "Che.%d", key );
+	CDC_Transmit_FS(Tx_Buffer, 5);
 	while(Rx_Buffer[0] ==0){
-		continue;
-	}
-	CLCD_I2C_Display(&LCD1, Rx_Buffer, "");
+			continue;
+		}
+//	CLCD_I2C_Display(&LCD1, Rx_Buffer, "");
 	HAL_Delay(1000);
-	if(Rx_Buffer[0] == '0'){
+	if(Rx_Buffer[0] == 'T'){
+		return key;
+	}else if(Rx_Buffer[0] == 'F'){
 		return 0;
 	}
-	return key;
-
+	memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
 }
 
-//void checkface(void)
-//{
-//	CDC_Transmit_FS("Che.00", 6);
-//	exitmenu = 60;
-//	CLCD_I2C_Display(&LCD1, "QUET FACE", "=>  BACK");
-//	while (exitmenu )
-//	{
-//		if (Rx_Buffer[0] != 0)
-//		{
-//
-//			if (Rx_Buffer[0] == 'F')
-//			{
-//				CLCD_I2C_Display(&LCD1, "FACE CHUA THEM", "");
-//				HAL_Delay(1000);
-//				CLCD_I2C_Display(&LCD1, "QUET FACE", "=>  BACK");
-//				HAL_Delay(1000);
-//			}
-//			else
-//			{
-//				uint8_t key = (Rx_Buffer[5] -48)*10 + (Rx_Buffer[6] -48) ;
-//				uint8_t key2 = key & 0x0f;
-//				uint8_t key1 = key >> 4;
-//				CLCD_I2C_Clear(&LCD1);
-//				switch (key1)
-//				{
-//				case 1:
-//					CLCD_I2C_SetCursor(&LCD1, 0, 0);
-//					CLCD_I2C_WriteString(&LCD1, "FACE NGUOI LON");
-//					break;
-//				default:
-//					CLCD_I2C_SetCursor(&LCD1, 0, 0);
-//					CLCD_I2C_WriteString(&LCD1, "FACE TRE EM");
-//					break;
-//				}
-//				switch (key2)
-//				{
-//				case 1:
-//					CLCD_I2C_SetCursor(&LCD1, 0, 1);
-//					CLCD_I2C_WriteString(&LCD1, "FACE 1");
-//					break;
-//				case 2:
-//					CLCD_I2C_SetCursor(&LCD1, 0, 1);
-//					CLCD_I2C_WriteString(&LCD1, "FACE 2");
-//					break;
-//				case 3:
-//					CLCD_I2C_SetCursor(&LCD1, 0, 1);
-//					CLCD_I2C_WriteString(&LCD1, "FACE 3");
-//					break;
-//				default:
-//					CLCD_I2C_SetCursor(&LCD1, 0, 1);
-//					CLCD_I2C_WriteString(&LCD1, "FACE 4");
-//					break;
-//				}
-//				HAL_Delay(2000);
-//				CLCD_I2C_Display(&LCD1, "QUET FACE", "=>  BACK");
-//			}
-//			memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
-//		}
-//		if (KeyPad_WaitForKeyGetChar(100)=='#')
-//		{
-//			break;
-//		}
-//	}
-//	CDC_Transmit_FS("Exit  ", 6);
-//}
 /* USER CODE END 4 */
 
 /**
