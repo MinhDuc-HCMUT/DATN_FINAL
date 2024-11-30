@@ -93,19 +93,19 @@ void startadd(void);
 void setaddress(void);
 void remoall(void);
 void resetflash(void);
-void add_finger();
-void read_finger();
 void startface(void);
 void addface(uint8_t key);
 void removeface(uint8_t key);
 uint8_t checkfaceid(uint8_t key);
+void add_finger();
+void read_finger();
+void remove_id_finger();
+void remove_all_finger();
+void reset_fingerprint_module();
 void enter_password(char *password);
 void change_password(void);
 uint8_t check_password(char *password);
 void set_default_password(void);
-void remove_id_finger();
-void remove_all_finger();
-void reset_fingerprint_module();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -1867,141 +1867,6 @@ void resetflash(void){
 	}
 }
 
-//---------- them van tay---------------
-void add_finger()
-{
-    uint8_t id = 0;
-    CLCD_I2C_Display(&LCD1, "Enter ID (1-9):", "ID= ");
-    while (1)
-    {
-        char key = KeyPad_WaitForKeyGetChar(10);
-        if (key >= '1' && key <= '9')
-        {
-            id = key - '0';
-            break;
-        }
-    }
-    ID = id;
-    CLCD_I2C_SetCursor(&LCD1, 4, 1);
-    CLCD_I2C_WriteChar(&LCD1, '0' + ID);
-    HAL_Delay(1000);
-
-    vitri2:
-    while(1)
-    {
-        collect_finger();
-        CLCD_I2C_Display(&LCD1, "  Them Van Tay!!     ", "Dat Van Tay!!     ");
-        HAL_Delay(1000);
-    // dat tay vao
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Reading finger...!!     ");
-        tmp=0xff;
-        while(tmp!=0x00){
-            collect_finger();
-            collect_finger();
-            tmp= collect_finger();
-        }
-        tmp=0xff;
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Remove Finger!!   ");HAL_Delay(100);
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Processing Finger!!   ");
-        tmp=0xff;
-        while(tmp!=0x00){
-        tmp=img2tz(0x01);
-        }
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"dat lai van tay !!   ");HAL_Delay(100);
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Reading finger...!!     ");
-        tmp=0xff;
-        while(tmp!=0x00)    {
-            collect_finger();
-            collect_finger();
-            tmp=collect_finger();
-        }
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Remove Finger!!   ");HAL_Delay(100);
-        tmp=0xff;
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Processing Finger!!   ");
-        while(tmp!=0x00)    {tmp=img2tz(0x02);}
-        tmp=0xff;
-        // kiem tra 2 buff co trung nhau khong
-        while(tmp!=0x00)
-        {
-            tmp=match();    //HAL_Delay(100);
-            if(tmp==0x08||tmp==0x01)
-            {
-                // loi, lam lai
-                    CLCD_I2C_SetCursor(&LCD1, 0, 1);
-                    CLCD_I2C_WriteString(&LCD1,"LOI, Lam Lai!!   ");HAL_Delay(1500);
-                goto vitri2;
-            }
-        }
-        tmp=0xff;
-        while(tmp!=0x00){tmp=regmodel();HAL_Delay(100);}
-        tmp=0xff;
-        while(tmp!=0x00){tmp=store(ID);HAL_Delay(100);}            // luu id
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"  Save Finger!    ");
-                /***************** DA LUU XONG**************************/
-        HAL_Delay(1500);
-        tmp=0xff;
-        CLCD_I2C_Clear(&LCD1);
-        break;
-    }
-}
-                        //----------end them van tay---------------
-void read_finger()
-{
-/**************************BEgin Doc van tay*****************************/
-	tmp=0xff;
-	time_cho=HAL_GetTick();
-	while(tmp!=0x00){
-		tmp=collect_finger();
-		if(HAL_GetTick()-time_cho>=1600) {
-		time_cho=HAL_GetTick();
-		return;}
-
-	}
-	tmp=0xff;
-	if(tmp!=0x00){tmp=img2tz(0x01);}
-	tmp=0xff;
-	tmp=search();
-	if(tmp==0x00)
-	{
-		tmp=0xff;	// co van tay
-		CLCD_I2C_SetCursor(&LCD1, 0, 1);
-		CLCD_I2C_WriteString(&LCD1,"Mo Cua!");
-		sprintf(mess," #id = %d  ", pID); // Use %d for integer
-		CLCD_I2C_WriteString(&LCD1,mess);
-		HAL_Delay(1000);
-		CLCD_I2C_Clear(&LCD1);
-	}
-	if(tmp==0x09)	// khong co van tay
-	{
-		tmp=0xff;
-		CLCD_I2C_SetCursor(&LCD1, 0, 1);
-		CLCD_I2C_WriteString(&LCD1," Van Tay Sai!!     "); HAL_Delay(1000);
-		CLCD_I2C_WriteString(&LCD1,mess);
-		HAL_Delay(1000);
-		CLCD_I2C_Clear(&LCD1);
-	}
-}
-void startface(void)
-{
-	if(Rx_Buffer[0] == 'Y'){
-        CLCD_I2C_Clear(&LCD1);
-        CLCD_I2C_SetCursor(&LCD1, 0, 0);
-        CLCD_I2C_WriteString(&LCD1, "    WELCOME");
-        HAL_Delay(2000);
-	}else if(Rx_Buffer[0] == 'N'){
-		CLCD_I2C_Display(&LCD1, "  WRONG FACEID", "CAN NOT ACCESS");
-        HAL_Delay(2000);
-	}
-	memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
-}
 void addface(uint8_t key)
 {
 	memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
@@ -2060,48 +1925,127 @@ uint8_t checkfaceid(uint8_t key){
 	}
 	memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
 }
-
-void enter_password(char *password) {
-    for (int i = 0; i < 6; i++) {
-        char key;
-        do {
-            key = KeyPad_WaitForKeyGetChar(10);
-        } while (key == 0 || (key < '0' || key > '9')); // Only accept numeric keys
-        password[i] = key;
-        CLCD_I2C_WriteChar(&LCD1, '*');
+//---------- them van tay---------------
+void add_finger()
+{
+    uint8_t id = 0;
+    CLCD_I2C_Display(&LCD1, "Enter ID (1-9):", "ID= ");
+    while (1)
+    {
+        char key = KeyPad_WaitForKeyGetChar(10);
+        if (key >= '1' && key <= '9')
+        {
+            id = key - '0';
+            break;
+        }
     }
-    password[6] = '\0';
-}
+    ID = id;
+    CLCD_I2C_SetCursor(&LCD1, 4, 1);
+    CLCD_I2C_WriteChar(&LCD1, '0' + ID);
+    HAL_Delay(1000);
 
-void change_password(void) {
-    char new_password[7] = {0};
-    CLCD_I2C_Display(&LCD1, "NEW PASSWORD", "");
-    enter_password(new_password);
-    // Erase the flash memory at the password address before writing the new password
-    Flash_Erase(StartAddressPassword);
-    Flash_Write_Array(StartAddressPassword, (uint8_t *)new_password, 6);
-    CLCD_I2C_Display(&LCD1, "PASSWORD CHANGED", "");
-    HAL_Delay(2000);
-    exitmenu = 0;
+    vitri2:
+    while(1)
+    {
+        collect_finger();
+        CLCD_I2C_Display(&LCD1, "Add Finger Print", "Put your finger!!     ");
+        HAL_Delay(1000);
+    // dat tay vao
+        CLCD_I2C_SetCursor(&LCD1, 0, 1);
+        CLCD_I2C_WriteString(&LCD1,"Reading finger...!!     ");
+        tmp=0xff;
+        while(tmp!=0x00){
+            collect_finger();
+            collect_finger();
+            tmp= collect_finger();
+        }
+        tmp=0xff;
+        CLCD_I2C_SetCursor(&LCD1, 0, 1);
+        CLCD_I2C_WriteString(&LCD1,"Remove Finger!!   ");HAL_Delay(100);
+        CLCD_I2C_SetCursor(&LCD1, 0, 1);
+        CLCD_I2C_WriteString(&LCD1,"Processing Finger!!   ");
+        tmp=0xff;
+        while(tmp!=0x00){
+        tmp=img2tz(0x01);
+        }
+        CLCD_I2C_SetCursor(&LCD1, 0, 1);
+        CLCD_I2C_WriteString(&LCD1,"put finger again");HAL_Delay(100);
+        CLCD_I2C_SetCursor(&LCD1, 0, 1);
+        CLCD_I2C_WriteString(&LCD1,"Reading finger...!!     ");
+        tmp=0xff;
+        while(tmp!=0x00)    {
+            collect_finger();
+            collect_finger();
+            tmp=collect_finger();
+        }
+        CLCD_I2C_SetCursor(&LCD1, 0, 1);
+        CLCD_I2C_WriteString(&LCD1,"Remove Finger!!   ");HAL_Delay(100);
+        tmp=0xff;
+        CLCD_I2C_SetCursor(&LCD1, 0, 1);
+        CLCD_I2C_WriteString(&LCD1,"Processing Finger!!   ");
+        while(tmp!=0x00)    {tmp=img2tz(0x02);}
+        tmp=0xff;
+        // kiem tra 2 buff co trung nhau khong
+        while(tmp!=0x00)
+        {
+            tmp=match();    //HAL_Delay(100);
+            if(tmp==0x08||tmp==0x01)
+            {
+                // loi, lam lai
+                    CLCD_I2C_SetCursor(&LCD1, 0, 1);
+                    CLCD_I2C_WriteString(&LCD1," ER: try again!");HAL_Delay(1500);
+                goto vitri2;
+            }
+        }
+        tmp=0xff;
+        while(tmp!=0x00){tmp=regmodel();HAL_Delay(100);}
+        tmp=0xff;
+        while(tmp!=0x00){tmp=store(ID);HAL_Delay(100);}            // luu id
+        CLCD_I2C_SetCursor(&LCD1, 0, 1);
+        CLCD_I2C_WriteString(&LCD1,"  Save Finger!    ");
+                /***************** DA LUU XONG**************************/
+        HAL_Delay(1500);
+        tmp=0xff;
+        CLCD_I2C_Clear(&LCD1);
+        break;
+    }
 }
+                        //----------end them van tay---------------
+void read_finger()
+{
+/**************************BEgin Doc van tay*****************************/
+	tmp=0xff;
+	time_cho=HAL_GetTick();
+	while(tmp!=0x00){
+		tmp=collect_finger();
+		if(HAL_GetTick()-time_cho>=1600) {
+		time_cho=HAL_GetTick();
+		return;}
 
-uint8_t check_password(char *password) {
-    char stored_password[7] = {0};
-    Flash_Read_Array(StartAddressPassword, (uint8_t *)stored_password, 6);
-    stored_password[6] = '\0';
-    return strcmp(password, stored_password) == 0;
+	}
+	tmp=0xff;
+	if(tmp!=0x00){tmp=img2tz(0x01);}
+	tmp=0xff;
+	tmp=search();
+	if(tmp==0x00)
+	{
+		tmp=0xff;	// co van tay
+		CLCD_I2C_Display(&LCD1, "    WELCOME", "Finger");
+		sprintf(mess," - id = %d  ", pID); // Use %d for integer
+		CLCD_I2C_WriteString(&LCD1,mess);
+		HAL_Delay(2000);
+		CLCD_I2C_Clear(&LCD1);
+	}
+	if(tmp==0x09)	// khong co van tay
+	{
+		tmp=0xff;
+		CLCD_I2C_SetCursor(&LCD1, 0, 1);
+		CLCD_I2C_WriteString(&LCD1,"WRONG Fingerprint"); HAL_Delay(1000);
+		CLCD_I2C_WriteString(&LCD1,mess);
+		HAL_Delay(1000);
+		CLCD_I2C_Clear(&LCD1);
+	}
 }
-
-void set_default_password(void) {
-    char default_password[6] = "111111";
-    // Erase the flash memory at the password address before writing the default password
-    Flash_Erase(StartAddressPassword);
-    Flash_Write_Array(StartAddressPassword, (uint8_t *)default_password, 6);
-    CLCD_I2C_Display(&LCD1, "RESET PASSWORD", "SUCCESSFULLY");
-    HAL_Delay(2000);
-    exitmenu=0;
-}
-
 void remove_id_finger()
 {
     uint8_t id = 0;
@@ -2175,6 +2119,62 @@ void reset_fingerprint_module()
     // HAL_Delay(100);
     // HAL_GPIO_WritePin(FP_RESET_GPIO_Port, FP_RESET_Pin, GPIO_PIN_SET);
 }
+void startface(void)
+{
+	if(Rx_Buffer[0] == 'Y'){
+        CLCD_I2C_Clear(&LCD1);
+        CLCD_I2C_SetCursor(&LCD1, 0, 0);
+        CLCD_I2C_WriteString(&LCD1, "    WELCOME");
+        HAL_Delay(2000);
+	}else if(Rx_Buffer[0] == 'N'){
+		CLCD_I2C_Display(&LCD1, "  WRONG FACEID", "CAN NOT ACCESS");
+        HAL_Delay(2000);
+	}
+	memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
+}
+
+void enter_password(char *password) {
+    for (int i = 0; i < 6; i++) {
+        char key;
+        do {
+            key = KeyPad_WaitForKeyGetChar(10);
+        } while (key == 0 || (key < '0' || key > '9')); // Only accept numeric keys
+        password[i] = key;
+        CLCD_I2C_WriteChar(&LCD1, '*');
+    }
+    password[6] = '\0';
+}
+
+void change_password(void) {
+    char new_password[7] = {0};
+    CLCD_I2C_Display(&LCD1, "NEW PASSWORD", "");
+    enter_password(new_password);
+    // Erase the flash memory at the password address before writing the new password
+    Flash_Erase(StartAddressPassword);
+    Flash_Write_Array(StartAddressPassword, (uint8_t *)new_password, 6);
+    CLCD_I2C_Display(&LCD1, "PASSWORD CHANGED", "");
+    HAL_Delay(2000);
+    exitmenu = 0;
+}
+
+uint8_t check_password(char *password) {
+    char stored_password[7] = {0};
+    Flash_Read_Array(StartAddressPassword, (uint8_t *)stored_password, 6);
+    stored_password[6] = '\0';
+    return strcmp(password, stored_password) == 0;
+}
+
+void set_default_password(void) {
+    char default_password[6] = "111111";
+    // Erase the flash memory at the password address before writing the default password
+    Flash_Erase(StartAddressPassword);
+    Flash_Write_Array(StartAddressPassword, (uint8_t *)default_password, 6);
+    CLCD_I2C_Display(&LCD1, "RESET PASSWORD", "SUCCESSFULLY");
+    HAL_Delay(2000);
+    exitmenu=0;
+}
+
+
 
 /* USER CODE END 4 */
 
