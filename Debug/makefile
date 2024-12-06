@@ -64,8 +64,8 @@ all: main-build
 main-build: FINAL1.elf secondary-outputs
 
 # Tool invocations
-FINAL1.elf FINAL1.map: $(OBJS) $(USER_OBJS) D:\DATN\FINAL1\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "FINAL1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"D:\DATN\FINAL1\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="FINAL1.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+FINAL1.elf FINAL1.map: $(OBJS) $(USER_OBJS) D:\DATN\DATN_FINAL_main\DATN_FINAL\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "FINAL1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"D:\DATN\DATN_FINAL_main\DATN_FINAL\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="FINAL1.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

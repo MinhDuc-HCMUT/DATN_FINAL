@@ -14,14 +14,12 @@ uint8_t receive_finger(uint8_t len)
 {
 	uint8_t p,D[13];
 	while((HAL_UART_Receive(&huart1,D,len,1000))==HAL_OK);
-	//HAL_UART_Receive(&huart1,D,len,500);
 	p=D[len-3];
 	return p;
 }
 uint8_t receive_finger_match(uint8_t len)
 {
 	uint8_t p,D[15];
-//	while((HAL_UART_Receive(&huart1,D,len,500))==HAL_OK);
 	HAL_UART_Receive(&huart1,D,len,1000);
 	p=D[len-5];
 	return p;
@@ -29,7 +27,6 @@ uint8_t receive_finger_match(uint8_t len)
 uint8_t receive_finger_search(uint8_t len)
 {
 	uint8_t p,D[17];
-//	while((HAL_UART_Receive(&huart1,D,len,500))==HAL_OK);
 	HAL_UART_Receive(&huart1,D,len,200);
 	p=D[len-7];
 	pID = D[11];

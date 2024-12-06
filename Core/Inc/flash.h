@@ -1,10 +1,3 @@
-/*
- * flash.h
- *
- *  Created on: Dec 5, 2022
- *      Author: hoang
- */
-
 #ifndef INC_FLASH_H_
 #define INC_FLASH_H_
 

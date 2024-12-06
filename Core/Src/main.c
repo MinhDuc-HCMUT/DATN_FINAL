@@ -39,6 +39,7 @@
 #define StartAddressUID 0x0800F000
 #define StartAddressPassword 0x0800F400
 #define Delaymenu 20
+#define opendoortime 3000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -106,6 +107,8 @@ void enter_password(char *password);
 void change_password(void);
 uint8_t check_password(char *password);
 void set_default_password(void);
+void opendoor(void);
+void buzzer( uint8_t countbeep);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -173,6 +176,9 @@ int main(void)
   KeyPad_Init();
   CLCD_I2C_Init(&LCD1, &hi2c2, 0x4E, 16, 2);
 
+  HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin,1);
+  HAL_GPIO_WritePin(LOCK_GPIO_Port, LOCK_Pin, 0);
+
   // Check if the password is set, if not, set the default password
   char stored_password[7] = {0};
   Flash_Read_Array(StartAddressPassword, (uint8_t *)stored_password, 6);
@@ -206,19 +212,22 @@ int main(void)
     CLCD_I2C_SetCursor(&LCD1, 0, 0);
     CLCD_I2C_WriteString(&LCD1, " SCAN YOUR CARD");
 
-    char selected_key = KeyPad_WaitForKeyGetChar(10); // Chờ vô hạn cho đến khi có phím nhấn.
+    char selected_key = KeyPad_WaitForKeyGetChar(10); // Ch�? vô hạn cho đến khi có phím nhấn.
 
     if (selected_key == '#')
     {
+    	buzzer(1);
         char entered_password[7] = {0};
         CLCD_I2C_Display(&LCD1, "ENTER PASSWORD", "");
         enter_password(entered_password);
         if (check_password(entered_password)) {
             CLCD_I2C_Display(&LCD1, "    WELCOME", "");
+            opendoor();
             incorrect_attempts = 0; // Reset incorrect attempts on successful login
         } else {
             incorrect_attempts++;
             CLCD_I2C_Display(&LCD1, "WRONG PASSWORD", "");
+            buzzer(5);
             int delay_time = 0;
             if (incorrect_attempts == 1) {
                 delay_time = 5;
@@ -239,7 +248,8 @@ int main(void)
     }
     else if (selected_key != 0)
     {
-        uint8_t key = 0; // Key quản lý quyền truy cập.
+    	buzzer(1);
+        uint8_t key = 0; // Key quản lý quy�?n truy cập.
         exitmenu = 15;
 
         switch (selected_key)
@@ -277,6 +287,7 @@ int main(void)
                 CLCD_I2C_Clear(&LCD1);
                 CLCD_I2C_SetCursor(&LCD1, 0, 0);
                 CLCD_I2C_WriteString(&LCD1, "NOT ACCESSIBLE");
+                buzzer(5);
                 HAL_Delay(2000);
                 CLCD_I2C_Clear(&LCD1);
                 break;
@@ -294,14 +305,15 @@ int main(void)
             CLCD_I2C_Clear(&LCD1);
             CLCD_I2C_SetCursor(&LCD1, 0, 0);
             CLCD_I2C_WriteString(&LCD1, "    WELCOME");
-            HAL_Delay(500);
+            opendoor();
         }
         else
         {
             CLCD_I2C_Clear(&LCD1);
             CLCD_I2C_SetCursor(&LCD1, 0, 0);
             CLCD_I2C_WriteString(&LCD1, "   WRONG CARD");
-            HAL_Delay(3000);
+            buzzer(5);
+            HAL_Delay(2000);
         }
     }
     else if(Rx_Buffer[0]!= 0)
@@ -314,6 +326,7 @@ int main(void)
 
     // Xử lý vân tay nếu phát hiện
     process_fingerprint();
+
   }
   /* USER CODE END 3 */
 }
@@ -325,7 +338,7 @@ int main(void)
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0}; // Corrected type
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
@@ -529,11 +542,14 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, CS_Pin|buzzer_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, CS_Pin|BUZZER_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, R1_Pin|R2_Pin|R3_Pin|R4_Pin
                           |chotkhoa_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(LOCK_GPIO_Port, LOCK_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : C4_Pin C3_Pin */
   GPIO_InitStruct.Pin = C4_Pin|C3_Pin;
@@ -547,12 +563,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CS_Pin buzzer_Pin */
-  GPIO_InitStruct.Pin = CS_Pin|buzzer_Pin;
+  /*Configure GPIO pin : CS_Pin */
+  GPIO_InitStruct.Pin = CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(CS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : R1_Pin R2_Pin R3_Pin R4_Pin */
   GPIO_InitStruct.Pin = R1_Pin|R2_Pin|R3_Pin|R4_Pin;
@@ -560,6 +576,20 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : BUZZER_Pin */
+  GPIO_InitStruct.Pin = BUZZER_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(BUZZER_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : LOCK_Pin */
+  GPIO_InitStruct.Pin = LOCK_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(LOCK_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : chotkhoa_Pin */
   GPIO_InitStruct.Pin = chotkhoa_Pin;
@@ -583,6 +613,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void RFID(void)
 {
+	buzzer(1);
 	exitmenu = 15;
 	uint8_t status = -1;
 	CLCD_I2C_Display(&LCD1," RFID SETTINGS ","Pls Press DOWN");
@@ -591,6 +622,7 @@ void RFID(void)
 		char key_pressed = KeyPad_WaitForKeyGetChar(10);
 		if (key_pressed =='*')
 		{
+			buzzer(1);
 			exitmenu = 15;
 			status++;
 			status = (status > 3) ? 0 : status;
@@ -612,6 +644,7 @@ void RFID(void)
 		}
 		if (key_pressed =='#')
 		{
+			buzzer(1);
 			exitmenu = 15;
 			switch (status)
 			{
@@ -630,6 +663,7 @@ void RFID(void)
 					}
 					if (key_pressed =='*')
 					{
+						buzzer(1);
 						exitmenu = 15;
 						statusadd++;
 						statusadd = (statusadd > 2) ? 0 : statusadd;
@@ -648,6 +682,7 @@ void RFID(void)
 					}
 					if (key_pressed =='#')
 					{
+						buzzer(1);
 						exitmenu = 15;
 						switch (statusadd)
 						{
@@ -666,6 +701,7 @@ void RFID(void)
 								}
 								if (key_pressed =='*')
 								{
+									buzzer(1);
 									exitmenu = 15;
 									statusadd1++;
 									statusadd1 = (statusadd1 > 3) ? 0 : statusadd1;
@@ -687,6 +723,7 @@ void RFID(void)
 								}
 								if (key_pressed =='#')
 								{
+									buzzer(1);
 									exitmenu = 15;
 									uint8_t keyadd1 = (statusadd << 4) + statusadd1;
 									switch (statusadd1)
@@ -695,6 +732,7 @@ void RFID(void)
 										if (CheckKey(keyadd1) != 0)
 										{
 											CLCD_I2C_Display(&LCD1,"    ADMIN 1"," Card 1 Existed ");
+											buzzer(3);
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 1 ");
 										}
@@ -708,6 +746,7 @@ void RFID(void)
 										if (CheckKey(keyadd1) != 0)
 										{
 											CLCD_I2C_Display(&LCD1,"    ADMIN 2"," Card 2 Existed ");
+											buzzer(3);
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 2 ");
 										}
@@ -721,6 +760,7 @@ void RFID(void)
 										if (CheckKey(keyadd1) != 0)
 										{
 											CLCD_I2C_Display(&LCD1,"    ADMIN 3"," Card 3 Existed ");
+											buzzer(3);
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1,"MODE: ADD ADMIN","=> Admin Card 3 ");
 										}
@@ -753,6 +793,7 @@ void RFID(void)
 								}
 								if (key_pressed =='*')
 								{
+									buzzer(1);
 									exitmenu = 15;
 									statusadd2++;
 									statusadd2 = (statusadd2 > 3) ? 0 : statusadd2;
@@ -774,6 +815,7 @@ void RFID(void)
 								}
 								if (key_pressed =='#')
 								{
+									buzzer(1);
 									exitmenu = 15;
 									uint8_t keyadd2 = (statusadd << 4) + statusadd2;
 									switch (statusadd2)
@@ -782,6 +824,7 @@ void RFID(void)
 										if (CheckKey(keyadd2) != 0)
 										{
 											CLCD_I2C_Display(&LCD1,"     USER 1"," Card 1 Existed ");
+											buzzer(3);
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 1 ");
 										}
@@ -795,6 +838,7 @@ void RFID(void)
 										if (CheckKey(keyadd2) != 0)
 										{
 											CLCD_I2C_Display(&LCD1,"     USER 2"," Card 2 Existed ");
+											buzzer(3);
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 2 ");
 										}
@@ -808,6 +852,7 @@ void RFID(void)
 										if (CheckKey(keyadd2) != 0)
 										{
 											CLCD_I2C_Display(&LCD1,"     USER 3"," Card 3 Existed ");
+											buzzer(3);
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1,"MODE: ADD USER","=> User Card 3 ");
 										}
@@ -848,6 +893,7 @@ void RFID(void)
 					}
 					if (key_pressed =='*')
 					{
+						buzzer(1);
 						exitmenu = 15;
 						statusremove++;
 						statusremove = (statusremove > 2) ? 0 : statusremove;
@@ -866,6 +912,7 @@ void RFID(void)
 					}
 					if (key_pressed =='#')
 					{
+						buzzer(1);
 						CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
 						exitmenu = 15;
 						switch (statusremove)
@@ -884,6 +931,7 @@ void RFID(void)
 								}
 								if (key_pressed =='*')
 								{
+									buzzer(1);
 									statusrm1++;
 									statusrm1 = (statusrm1 > 2) ? 0 : statusrm1;
 									switch (statusrm1)
@@ -901,6 +949,7 @@ void RFID(void)
 								}
 								if (key_pressed =='#')
 								{
+									buzzer(1);
 									exitmenu = 15;
 									switch (statusrm1)
 									{
@@ -919,6 +968,7 @@ void RFID(void)
 											}
 											if (key_pressed =='*')
 											{
+												buzzer(1);
 												exitmenu = 15;
 												statusadd++;
 												statusadd = (statusadd > 2) ? 0 : statusadd;
@@ -936,6 +986,7 @@ void RFID(void)
 											}
 											if (key_pressed =='#')
 											{
+												buzzer(1);
 												exitmenu = 15;
 												switch (statusadd)
 												{
@@ -954,6 +1005,7 @@ void RFID(void)
 														}
 														if (key_pressed =='*')
 														{
+															buzzer(1);
 															exitmenu = 15;
 															statusadd1++;
 															statusadd1 = (statusadd1 > 3) ? 0 : statusadd1;
@@ -975,6 +1027,7 @@ void RFID(void)
 														}
 														if (key_pressed =='#')
 														{
+															buzzer(1);
 															exitmenu = 15;
 															uint8_t keyadd1 = (statusadd << 4) + statusadd1;
 															switch (statusadd1)
@@ -983,6 +1036,7 @@ void RFID(void)
 																if (CheckKey(keyadd1) == 0)
 																{
 																	CLCD_I2C_Display(&LCD1, "    ADMIN 1", "  Do Not Exist");
+																	buzzer(3);
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 1");
 																}
@@ -1006,6 +1060,7 @@ void RFID(void)
 																if (CheckKey(keyadd1) == 0)
 																{
 																	CLCD_I2C_Display(&LCD1, "    ADMIN 2", "  Do Not Exist");
+																	buzzer(3);
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 2");
 																}
@@ -1029,6 +1084,7 @@ void RFID(void)
 																if (CheckKey(keyadd1) == 0)
 																{
 																	CLCD_I2C_Display(&LCD1, "    ADMIN 3", "  Do Not Exist");
+																	buzzer(3);
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM ADMIN","=> RM Admin 3");
 																}
@@ -1071,6 +1127,7 @@ void RFID(void)
 														}
 														if (key_pressed =='*')
 														{
+															buzzer(1);
 															exitmenu = 15;
 															statusadd2++;
 															statusadd2 = (statusadd2 > 3) ? 0 : statusadd2;
@@ -1092,6 +1149,7 @@ void RFID(void)
 														}
 														if (key_pressed =='#')
 														{
+															buzzer(1);
 															exitmenu = 15;
 															uint8_t keyadd2 = (statusadd << 4) + statusadd2;
 															switch (statusadd2)
@@ -1100,6 +1158,7 @@ void RFID(void)
 																if (CheckKey(keyadd2) == 0)
 																{
 																	CLCD_I2C_Display(&LCD1, "     USER 1","  Do Not Exist");
+																	buzzer(3);
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 1");
 																}
@@ -1114,7 +1173,9 @@ void RFID(void)
 															case 2:
 																if (CheckKey(keyadd2) == 0)
 																{
+
 																	CLCD_I2C_Display(&LCD1, "     USER 2","  Do Not Exist");
+																	buzzer(3);
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 2");
 																}
@@ -1130,6 +1191,7 @@ void RFID(void)
 																if (CheckKey(keyadd2) == 0)
 																{
 																	CLCD_I2C_Display(&LCD1, "     USER 3","  Do Not Exist");
+																	buzzer(3);
 																	HAL_Delay(1000);
 																	CLCD_I2C_Display(&LCD1,"MODE: RM USER","=> RM User 3");
 																}
@@ -1184,12 +1246,14 @@ void RFID(void)
 												else
 												{
 													CLCD_I2C_Display(&LCD1, "   THIS CARD","  Do Not Exist");
+													buzzer(3);
 													HAL_Delay(1000);
 													CLCD_I2C_Display(&LCD1,"PLS SCAN CARD","=> Back");
 												}
 											}
 											if (key_pressed =='#')
 											{
+												buzzer(1);
 												rmquet = 0;
 											}
 										}
@@ -1229,6 +1293,7 @@ void RFID(void)
 	CLCD_I2C_Clear(&LCD1);
 }
 void FACEID(void) {
+	buzzer(1);
 	exitmenu = Delaymenu;
 	uint8_t status = -1;
 	CLCD_I2C_Display(&LCD1,"FACEID SETTINGS ","Pls Press DOWN");
@@ -1237,6 +1302,7 @@ void FACEID(void) {
 		char key_pressed = KeyPad_WaitForKeyGetChar(10);
 		if (key_pressed == '*')
 		{
+			buzzer(1);
 			exitmenu = Delaymenu;
 			status++;
 			status = (status > 2) ? 0 : status;
@@ -1255,6 +1321,7 @@ void FACEID(void) {
 		}
 		if (key_pressed == '#')
 		{
+			buzzer(1);
 			exitmenu = Delaymenu;
 			switch (status)
 			{
@@ -1273,6 +1340,7 @@ void FACEID(void) {
 					}
 					if (key_pressed == '*')
 					{
+						buzzer(1);
 						exitmenu = Delaymenu;
 						statusadd++;
 						statusadd = (statusadd > 4) ? 0 : statusadd;
@@ -1297,6 +1365,7 @@ void FACEID(void) {
 					}
 					if (key_pressed == '#')
 					{
+						buzzer(1);
 						exitmenu = Delaymenu;
 						uint8_t keyadd1 = statusadd;
 						switch (statusadd)
@@ -1305,6 +1374,7 @@ void FACEID(void) {
 							if (checkfaceid(keyadd1) != 0)
 							{
 								CLCD_I2C_Display(&LCD1,"    FACEID 1"," Face 1 Existed ");
+								buzzer(3);
 								HAL_Delay(1000);
 								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 1");
 							}
@@ -1318,6 +1388,7 @@ void FACEID(void) {
 							if (checkfaceid(keyadd1) != 0)
 							{
 								CLCD_I2C_Display(&LCD1,"    FACEID 2"," Face 2 Existed ");
+								buzzer(3);
 								HAL_Delay(1000);
 								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 2");
 							}
@@ -1331,6 +1402,7 @@ void FACEID(void) {
 							if (checkfaceid(keyadd1) != 0)
 							{
 								CLCD_I2C_Display(&LCD1,"    FACEID 3"," Face 3 Existed ");
+								buzzer(3);
 								HAL_Delay(1000);
 								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 3");
 							}
@@ -1344,6 +1416,7 @@ void FACEID(void) {
 							if (checkfaceid(keyadd1) != 0)
 							{
 								CLCD_I2C_Display(&LCD1,"    FACEID 4"," Face 4 Existed ");
+								buzzer(3);
 								HAL_Delay(1000);
 								CLCD_I2C_Display(&LCD1,"FACEID: ADD","=> FaceID 4");
 							}
@@ -1376,6 +1449,7 @@ void FACEID(void) {
 					}
 					if (key_pressed == '*')
 					{
+						buzzer(1);
 						exitmenu = Delaymenu;
 						statusrm++;
 						statusrm = (statusrm > 2) ? 0 : statusrm;
@@ -1394,6 +1468,7 @@ void FACEID(void) {
 					}
 					if (key_pressed == '#')
 					{
+						buzzer(1);
 						exitmenu = Delaymenu;
 						switch (statusrm)
 						{
@@ -1412,6 +1487,7 @@ void FACEID(void) {
 								}
 								if (key_pressed == '*')
 								{
+									buzzer(1);
 									exitmenu = Delaymenu;
 									statusrm1++;
 									statusrm1 = (statusrm1 > 4) ? 0 : statusrm1;
@@ -1436,6 +1512,7 @@ void FACEID(void) {
 								}
 								if (key_pressed == '#')
 								{
+									buzzer(1);
 									exitmenu = Delaymenu;
 									uint8_t keyrm1 = statusrm1;
 									switch (keyrm1)
@@ -1444,6 +1521,7 @@ void FACEID(void) {
 										if (checkfaceid(keyrm1) == 0)
 										{
 											CLCD_I2C_Display(&LCD1, "    FaceID 1", "  Do Not Exist");
+											buzzer(3);
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 1");
 										}
@@ -1459,6 +1537,7 @@ void FACEID(void) {
 										if (checkfaceid(keyrm1) == 0)
 										{
 											CLCD_I2C_Display(&LCD1, "    FaceID 2", "  Do Not Exist");
+											buzzer(3);
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 2");
 										}
@@ -1474,6 +1553,7 @@ void FACEID(void) {
 										if (checkfaceid(keyrm1) == 0)
 										{
 											CLCD_I2C_Display(&LCD1, "    FaceID 3", "  Do Not Exist");
+											buzzer(3);
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 3");
 										}
@@ -1489,6 +1569,7 @@ void FACEID(void) {
 										if (checkfaceid(keyrm1) == 0)
 										{
 											CLCD_I2C_Display(&LCD1, "    FaceID 4", "  Do Not Exist");
+											buzzer(3);
 											HAL_Delay(1000);
 											CLCD_I2C_Display(&LCD1, "MODE: REMOVE 1", "=> Remove Face 4");
 										}
@@ -1542,6 +1623,7 @@ void FACEID(void) {
 	CLCD_I2C_Clear(&LCD1);
 }
 void FINGER(void) {
+	buzzer(1);
 	exitmenu = Delaymenu;
 	uint8_t status = -1;
 	CLCD_I2C_Display(&LCD1,"FINGER SETTING ","Pls Press DOWN");
@@ -1550,6 +1632,7 @@ void FINGER(void) {
 		char key_pressed = KeyPad_WaitForKeyGetChar(10);
 		if (key_pressed == '*')
 		{
+			buzzer(1);
 			exitmenu = Delaymenu;
 			status++;
 			status = (status > 3) ? 0 : status;
@@ -1571,6 +1654,7 @@ void FINGER(void) {
 		}
 		if (key_pressed == '#')
 		{
+			buzzer(1);
 			exitmenu = Delaymenu;
 			switch (status)
 			{
@@ -1596,6 +1680,7 @@ void FINGER(void) {
 
 
 void PASSWORD(void) {
+	buzzer(1);
 	exitmenu = Delaymenu;
 	uint8_t status = -1;
 	CLCD_I2C_Display(&LCD1,"PASSWORD SETTING ","Pls Press DOWN");
@@ -1604,6 +1689,7 @@ void PASSWORD(void) {
 		char key_pressed = KeyPad_WaitForKeyGetChar(10);
 		if (key_pressed == '*')
 		{
+			buzzer(1);
 			exitmenu = Delaymenu;
 			status++;
 			status = (status > 2) ? 0 : status;
@@ -1622,6 +1708,7 @@ void PASSWORD(void) {
 		}
 		if (key_pressed == '#')
 		{
+			buzzer(1);
 			exitmenu = Delaymenu;
 			switch (status)
 			{
@@ -1697,6 +1784,7 @@ void adduid(uint8_t key)
 			HAL_Delay(100);
 			if (CheckListUID(CardID) == 0)
 			{
+				buzzer(1);
 				CardID[5] = key;
 				Flash_Write_Array(AddressUID, CardID, 6);
 				AddressUID += 8;
@@ -1711,12 +1799,14 @@ void adduid(uint8_t key)
 				CLCD_I2C_Clear(&LCD1);
 				CLCD_I2C_SetCursor(&LCD1, 0, 0);
 				CLCD_I2C_WriteString(&LCD1, "CARD EXISTED");
+				buzzer(3);
 				HAL_Delay(1000);
 				CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
 			}
 		}
 		if (KeyPad_WaitForKeyGetChar(100)=='#')
 		{
+			buzzer(1);
 			return;
 		}
 	}
@@ -1735,6 +1825,7 @@ void checkthe(void)
 				CLCD_I2C_Clear(&LCD1);
 				CLCD_I2C_SetCursor(&LCD1, 0, 0);
 				CLCD_I2C_WriteString(&LCD1, "CARD DONT EXIST");
+				buzzer(3);
 				HAL_Delay(1000);
 				CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
 				HAL_Delay(1000);
@@ -1745,6 +1836,7 @@ void checkthe(void)
 				uint8_t key2 = key & 0x0f;
 				uint8_t key1 = key >> 4;
 				CLCD_I2C_Clear(&LCD1);
+				buzzer(1);
 				switch (key1)
 				{
 				case 1:
@@ -1777,6 +1869,7 @@ void checkthe(void)
 		}
 		if (KeyPad_WaitForKeyGetChar(100)=='#')
 		{
+			buzzer(1);
 			return;
 		}
 	}
@@ -1816,12 +1909,14 @@ void startadd(void)
 				else
 				{
 					CLCD_I2C_Display(&LCD1, "    WARNING!", "Try another card");
+					buzzer(5);
 					HAL_Delay(1000);
 					CLCD_I2C_Display(&LCD1, "PLS SCAN CARD","First Admin Card");
 				}
 			}
 		}
 	CLCD_I2C_Display(&LCD1, "ADD SUCCESSFUL","Admin Card 1");
+	buzzer(1);
 	HAL_Delay(1000);
 	CLCD_I2C_Clear(&LCD1);
 }
@@ -1877,11 +1972,13 @@ void addface(uint8_t key)
 	while(exitmenu != 0){
 		if(Rx_Buffer[0] == 'T'){
 			CLCD_I2C_Display(&LCD1, "   ADD FACEID", "   SUCCESSFUL");
+			buzzer(1);
 			HAL_Delay(2000);
 			break;
 		}
 		else if(Rx_Buffer[0] == 'F'){
 			CLCD_I2C_Display(&LCD1, "ERROR: UNKNOWN", "");
+			buzzer(5);
 			HAL_Delay(2000);
 			break;
 		}
@@ -1898,11 +1995,13 @@ void removeface(uint8_t key)
 	while(exitmenu != 0){
 		if(Rx_Buffer[0] == 'T'){
 			CLCD_I2C_Display(&LCD1, "XOA THANH CONG", "");
+			buzzer(1);
 			HAL_Delay(2000);
 			break;
 		}
 		else if(Rx_Buffer[0] == 'F'){
 			CLCD_I2C_Display(&LCD1, "ERROR: UNKOWN", "");
+			buzzer(5);
 			HAL_Delay(2000);
 			break;
 		}
@@ -1935,6 +2034,7 @@ void add_finger()
         char key = KeyPad_WaitForKeyGetChar(10);
         if (key >= '1' && key <= '9')
         {
+        	buzzer(1);
             id = key - '0';
             break;
         }
@@ -1993,7 +2093,7 @@ void add_finger()
             {
                 // loi, lam lai
                     CLCD_I2C_SetCursor(&LCD1, 0, 1);
-                    CLCD_I2C_WriteString(&LCD1," ER: try again!");HAL_Delay(1500);
+                    CLCD_I2C_WriteString(&LCD1," ER: try again!");buzzer(5);HAL_Delay(1500);
                 goto vitri2;
             }
         }
@@ -2003,6 +2103,7 @@ void add_finger()
         while(tmp!=0x00){tmp=store(ID);HAL_Delay(100);}            // luu id
         CLCD_I2C_SetCursor(&LCD1, 0, 1);
         CLCD_I2C_WriteString(&LCD1,"  Save Finger!    ");
+        buzzer(1);
                 /***************** DA LUU XONG**************************/
         HAL_Delay(1500);
         tmp=0xff;
@@ -2033,14 +2134,14 @@ void read_finger()
 		CLCD_I2C_Display(&LCD1, "    WELCOME", "Finger");
 		sprintf(mess," - id = %d  ", pID); // Use %d for integer
 		CLCD_I2C_WriteString(&LCD1,mess);
-		HAL_Delay(2000);
+		opendoor();
 		CLCD_I2C_Clear(&LCD1);
 	}
 	if(tmp==0x09)	// khong co van tay
 	{
 		tmp=0xff;
 		CLCD_I2C_SetCursor(&LCD1, 0, 1);
-		CLCD_I2C_WriteString(&LCD1,"WRONG Fingerprint"); HAL_Delay(1000);
+		CLCD_I2C_WriteString(&LCD1,"Wrong Fingerprint"); buzzer(5);HAL_Delay(1000);
 		CLCD_I2C_WriteString(&LCD1,mess);
 		HAL_Delay(1000);
 		CLCD_I2C_Clear(&LCD1);
@@ -2055,6 +2156,7 @@ void remove_id_finger()
         char key = KeyPad_WaitForKeyGetChar(10);
         if (key >= '1' && key <= '9')
         {
+        	buzzer(1);
             id = key - '0';
             break;
         }
@@ -2069,6 +2171,7 @@ void remove_id_finger()
     if (result == 0x00)
     {
         CLCD_I2C_Display(&LCD1, "Remove Finger", "Successfully");
+        buzzer(1);
         // Ensure the fingerprint is removed from memory
         fingerprint_detected = 0;
         // Reset the fingerprint module
@@ -2078,6 +2181,7 @@ void remove_id_finger()
     {
         char buffer[16];
         snprintf(buffer, sizeof(buffer), "Error Code: %02X", result);
+        buzzer(5);
         CLCD_I2C_Display(&LCD1, "Remove Finger", buffer);
     }
     HAL_Delay(2000);
@@ -2095,6 +2199,7 @@ void remove_all_finger()
         {
             char buffer[16];
             snprintf(buffer, sizeof(buffer), "Error Code: %02X", result);
+            buzzer(5);
             CLCD_I2C_Display(&LCD1, "Remove Finger", buffer);
             HAL_Delay(2000);
             CLCD_I2C_Clear(&LCD1);
@@ -2102,6 +2207,7 @@ void remove_all_finger()
         }
     }
     CLCD_I2C_Display(&LCD1, "   REMOVE ALL", "  SUCCESSFULLY");
+    buzzer(1);
     // Ensure all fingerprints are removed from memory
     fingerprint_detected = 0;
     // Reset the fingerprint module
@@ -2125,9 +2231,11 @@ void startface(void)
         CLCD_I2C_Clear(&LCD1);
         CLCD_I2C_SetCursor(&LCD1, 0, 0);
         CLCD_I2C_WriteString(&LCD1, "    WELCOME");
-        HAL_Delay(2000);
+        opendoor();
+//        HAL_Delay(2000);
 	}else if(Rx_Buffer[0] == 'N'){
 		CLCD_I2C_Display(&LCD1, "  WRONG FACEID", "CAN NOT ACCESS");
+		buzzer(5);
         HAL_Delay(2000);
 	}
 	memset(Rx_Buffer, 0, sizeof(Rx_Buffer));
@@ -2139,6 +2247,7 @@ void enter_password(char *password) {
         do {
             key = KeyPad_WaitForKeyGetChar(10);
         } while (key == 0 || (key < '0' || key > '9')); // Only accept numeric keys
+        buzzer(1);
         password[i] = key;
         CLCD_I2C_WriteChar(&LCD1, '*');
     }
@@ -2146,15 +2255,23 @@ void enter_password(char *password) {
 }
 
 void change_password(void) {
-    char new_password[7] = {0};
-    CLCD_I2C_Display(&LCD1, "NEW PASSWORD", "");
-    enter_password(new_password);
-    // Erase the flash memory at the password address before writing the new password
-    Flash_Erase(StartAddressPassword);
-    Flash_Write_Array(StartAddressPassword, (uint8_t *)new_password, 6);
-    CLCD_I2C_Display(&LCD1, "PASSWORD CHANGED", "");
+    char old_password[7] = {0};
+    CLCD_I2C_Display(&LCD1, " ENTER OLD PASS", "     ");
+    enter_password(old_password);
+    if (check_password(old_password)) {
+        char new_password[7] = {0};
+        CLCD_I2C_Display(&LCD1, " ENTER NEW PASS", "     ");
+        enter_password(new_password);
+        // Erase the flash memory at the password address before writing the new password
+        Flash_Erase(StartAddressPassword);
+        Flash_Write_Array(StartAddressPassword, (uint8_t *)new_password, 6);
+        CLCD_I2C_Display(&LCD1, "PASSWORD CHANGED", "  SUCCESSFULLY");
+        buzzer(1);
+    } else {
+        CLCD_I2C_Display(&LCD1, "WRONG PASSWORD", "");
+        buzzer(5);
+    }
     HAL_Delay(2000);
-    exitmenu = 0;
 }
 
 uint8_t check_password(char *password) {
@@ -2169,11 +2286,42 @@ void set_default_password(void) {
     // Erase the flash memory at the password address before writing the default password
     Flash_Erase(StartAddressPassword);
     Flash_Write_Array(StartAddressPassword, (uint8_t *)default_password, 6);
-    CLCD_I2C_Display(&LCD1, "RESET PASSWORD", "SUCCESSFULLY");
-    HAL_Delay(2000);
+    CLCD_I2C_Display(&LCD1, " RESET PASSWORD", "  SUCCESSFULLY");
+    buzzer(1);
+    HAL_Delay(1500);
+    CLCD_I2C_Display(&LCD1, "  NEW PASSWORD:", "     111111");
+    HAL_Delay(1000);
     exitmenu=0;
 }
 
+void opendoor(void)
+{
+    buzzer(1);
+    HAL_GPIO_WritePin(LOCK_GPIO_Port, LOCK_Pin, 1);
+    HAL_Delay(1500);
+    uint32_t door_open_time = HAL_GetTick();
+    while ((HAL_GetTick() - door_open_time) < opendoortime)
+    {
+        uint32_t remaining_time = (opendoortime - (HAL_GetTick() - door_open_time) + 999) / 1000; // Adjust to include 2s
+        char buffer[16];
+        snprintf(buffer, sizeof(buffer), "       %lus", remaining_time);
+        CLCD_I2C_Display(&LCD1, " DOOR IS OPENING", buffer);
+        HAL_Delay(1000);
+    }
+    HAL_GPIO_WritePin(LOCK_GPIO_Port, LOCK_Pin, 0);
+    CLCD_I2C_Clear(&LCD1);
+}
+void buzzer( uint8_t countbeep)
+{
+
+	while(countbeep--)
+	{
+		HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin,0);
+		HAL_Delay(120);
+		HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin,1);
+		HAL_Delay(50);
+	}
+}
 
 
 /* USER CODE END 4 */
@@ -2211,4 +2359,3 @@ void assert_failed(uint8_t *file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

@@ -1,11 +1,3 @@
-/*
- * flash.c
- *
- *  Created on: Dec 5, 2022
- *      Author: hoang
- */
-
-
 #include <flash.h>
 
 void Flash_Erase(uint32_t address){
