@@ -10,6 +10,4 @@
 ../Core/Src/fingerprint.c:104:5:search	1
 ../Core/Src/fingerprint.c:121:5:search1	1
 ../Core/Src/fingerprint.c:139:5:empty	1
-../Core/Src/fingerprint.c:153:5:del	1
-../Core/Src/fingerprint.c:168:9:delete_finger	1
-../Core/Src/fingerprint.c:173:9:delete_all_fingers	4
+../Core/Src/fingerprint.c:153:5:delete_id_finger	1

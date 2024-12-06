@@ -2131,8 +2131,8 @@ void read_finger()
 	if(tmp==0x00)
 	{
 		tmp=0xff;	// co van tay
-		CLCD_I2C_Display(&LCD1, "    WELCOME", "Finger");
-		sprintf(mess," - id = %d  ", pID); // Use %d for integer
+		CLCD_I2C_Display(&LCD1, "    WELCOME", " Finger");
+		sprintf(mess,"-id = %d  ", pID); // Use %d for integer
 		CLCD_I2C_WriteString(&LCD1,mess);
 		opendoor();
 		CLCD_I2C_Clear(&LCD1);
@@ -2167,7 +2167,7 @@ void remove_id_finger()
     HAL_Delay(1000);
 
     CLCD_I2C_Display(&LCD1, "Removing Finger", "");
-    uint8_t result = delete_finger(ID);
+    uint8_t result = delete_id_finger(ID);
     if (result == 0x00)
     {
         CLCD_I2C_Display(&LCD1, "Remove Finger", "Successfully");
@@ -2190,28 +2190,24 @@ void remove_id_finger()
 
 void remove_all_finger()
 {
-    CLCD_I2C_Display(&LCD1, "Removing All", "Fingers");
-    uint8_t result;
-    for (uint8_t id = 0; id <= 9; id++)
+    CLCD_I2C_Display(&LCD1, "  RM ALL FINGER", "  Processing...");
+    uint8_t result = empty();
+    if (result == 0x00)
     {
-        result = delete_finger(id);
-        if (result != 0x00)
-        {
-            char buffer[16];
-            snprintf(buffer, sizeof(buffer), "Error Code: %02X", result);
-            buzzer(5);
-            CLCD_I2C_Display(&LCD1, "Remove Finger", buffer);
-            HAL_Delay(2000);
-            CLCD_I2C_Clear(&LCD1);
-            return;
-        }
+        CLCD_I2C_Display(&LCD1, "   REMOVE ALL", "  SUCCESSFULLY");
+        buzzer(1);
+        // Ensure all fingerprints are removed from memory
+        fingerprint_detected = 0;
+        // Reset the fingerprint module
+        reset_fingerprint_module();
     }
-    CLCD_I2C_Display(&LCD1, "   REMOVE ALL", "  SUCCESSFULLY");
-    buzzer(1);
-    // Ensure all fingerprints are removed from memory
-    fingerprint_detected = 0;
-    // Reset the fingerprint module
-    reset_fingerprint_module();
+    else
+    {
+        char buffer[16];
+        snprintf(buffer, sizeof(buffer), "Error Code: %02X", result);
+        buzzer(5);
+        CLCD_I2C_Display(&LCD1, "Remove Finger", buffer);
+    }
     HAL_Delay(2000);
     CLCD_I2C_Clear(&LCD1);
 }

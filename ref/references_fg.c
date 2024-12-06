@@ -1,34 +1,37 @@
 #include "stm32f1xx_hal.h"
 #include "stdint.h"
 #include "stdio.h"
-#include "fingerprint.h"
+#include "finger.h"
 /*****************************************************************************/
 uint8_t pID;
-extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart3;
 /*****************************************************************************/
 void USART_SendByte (uint8_t	byte)
 {
-	HAL_UART_Transmit(&huart1,&byte,1,500);
+	HAL_UART_Transmit(&huart3,&byte,1,500);
 }
 uint8_t receive_finger(uint8_t len)
 {
 	uint8_t p,D[13];
-	while((HAL_UART_Receive(&huart1,D,len,1000))==HAL_OK);
+	while((HAL_UART_Receive(&huart3,D,len,1000))==HAL_OK);
+	//HAL_UART_Receive(&huart3,D,len,500);
 	p=D[len-3];
 	return p;
 }
 uint8_t receive_finger_match(uint8_t len)
 {
 	uint8_t p,D[15];
-	HAL_UART_Receive(&huart1,D,len,1000);
+//	while((HAL_UART_Receive(&huart3,D,len,500))==HAL_OK);
+	HAL_UART_Receive(&huart3,D,len,1000);
 	p=D[len-5];
 	return p;
 }
 uint8_t receive_finger_search(uint8_t len)
 {
 	uint8_t p,D[17];
-	HAL_UART_Receive(&huart1,D,len,200);
-	p=D[len-7];
+//	while((HAL_UART_Receive(&huart3,D,len,500))==HAL_OK);
+	HAL_UART_Receive(&huart3,D,len,200);
+	p=D[len-7];	 
 	pID = D[11];
 
 	return p;
@@ -134,10 +137,10 @@ int search1(void)
   USART_SendByte(0x00);USART_SendByte(0x0F);// ma check sum dc tinh
 //		USART_SendByte(0x01);USART_SendByte(0x0D);// ma check sum dc tinh
    return receive_finger_search(16);
-
+   
 }
 int empty(void)
-{
+{		
 //   tmp=0xFF;
 //	int D[20];
  //  for(i=0;i<20;i++) D[i]=0xDD;
@@ -148,20 +151,20 @@ int empty(void)
    USART_SendByte(0x0D);
    USART_SendByte(0x00);USART_SendByte(0x11);
    return receive_finger(12);
-
+    
 }
-int delete_id_finger(uint8_t id)
-{
+int del(uint8_t id)
+{		
 	uint8_t sum1;
-    sum1 = 0x15 + id;
-    USART_SendByte(0xEF);USART_SendByte(0x01);
-    USART_SendByte(0xFF);USART_SendByte(0xFF);USART_SendByte(0xFF);USART_SendByte(0xFF);
-    USART_SendByte(0x01);
-    USART_SendByte(0x00);USART_SendByte(0x07);
-    USART_SendByte(0x0C);
-    USART_SendByte(0x00);USART_SendByte(id);
-    USART_SendByte(0x00);USART_SendByte(0x01);
-    USART_SendByte(0x00);USART_SendByte(sum1);
-    return receive_finger(12);
+   sum1= 0x15 + id;
+   USART_SendByte(0xEF);USART_SendByte(0x01);
+   USART_SendByte(0xFF);USART_SendByte(0xFF);USART_SendByte(0xFF);USART_SendByte(0xFF);
+   USART_SendByte(0x01);
+   USART_SendByte(0x00);USART_SendByte(0x07);
+   USART_SendByte(0x0C);
+   USART_SendByte(0x00);USART_SendByte(id);
+	 USART_SendByte(0x00);USART_SendByte(0x01);
+   USART_SendByte(0x00);USART_SendByte(sum1);
+   return receive_finger(12);
+    
 }
-/*****************************************************************************/

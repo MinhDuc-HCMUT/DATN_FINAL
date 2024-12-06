@@ -1,6 +1,5 @@
-#ifndef INC_FINGER_PRINT_H_
-#define INC_FINGER_PRINT_H_
-
+#ifndef __FINGER_H
+#define __FINGER_H	 
 #include "stm32f1xx_hal.h"
 uint8_t receive_finger(uint8_t len);
 uint8_t receive_finger_match(uint8_t len);
@@ -13,6 +12,5 @@ int store(uint8_t ID);
 int search(void);
 int empty(void);
 int search1(void);
-int delete_id_finger(uint8_t id);
-
+int del(uint8_t id);
 #endif
