@@ -33,9 +33,9 @@
 ../Core/Src/main.c:2215:6:reset_fingerprint_module	4	static
 ../Core/Src/main.c:2224:6:startface	8	static
 ../Core/Src/main.c:2240:6:enter_password	24	static
-../Core/Src/main.c:2253:6:change_password	24	static
-../Core/Src/main.c:2273:9:check_password	24	static
-../Core/Src/main.c:2280:6:set_default_password	16	static
-../Core/Src/main.c:2293:6:opendoor	32	static
-../Core/Src/main.c:2310:6:buzzer	16	static
-../Core/Src/main.c:2329:6:Error_Handler	4	static,ignoring_inline_asm
+../Core/Src/main.c:2253:6:change_password	16	static
+../Core/Src/main.c:2267:9:check_password	24	static
+../Core/Src/main.c:2274:6:set_default_password	16	static
+../Core/Src/main.c:2287:6:opendoor	32	static
+../Core/Src/main.c:2304:6:buzzer	16	static
+../Core/Src/main.c:2323:6:Error_Handler	4	static,ignoring_inline_asm

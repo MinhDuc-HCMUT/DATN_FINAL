@@ -2251,22 +2251,16 @@ void enter_password(char *password) {
 }
 
 void change_password(void) {
-    char old_password[7] = {0};
-    CLCD_I2C_Display(&LCD1, " ENTER OLD PASS", "     ");
-    enter_password(old_password);
-    if (check_password(old_password)) {
-        char new_password[7] = {0};
-        CLCD_I2C_Display(&LCD1, " ENTER NEW PASS", "     ");
-        enter_password(new_password);
-        // Erase the flash memory at the password address before writing the new password
-        Flash_Erase(StartAddressPassword);
-        Flash_Write_Array(StartAddressPassword, (uint8_t *)new_password, 6);
-        CLCD_I2C_Display(&LCD1, "PASSWORD CHANGED", "  SUCCESSFULLY");
-        buzzer(1);
-    } else {
-        CLCD_I2C_Display(&LCD1, "WRONG PASSWORD", "");
-        buzzer(5);
-    }
+    char new_password[7] = {0};
+    CLCD_I2C_Display(&LCD1, "  PLEASE INFORM", "   ALL ADMINS");
+    HAL_Delay(2000);
+    CLCD_I2C_Display(&LCD1, " ENTER NEW PASS", "     ");
+    enter_password(new_password);
+    // Erase the flash memory at the password address before writing the new password
+    Flash_Erase(StartAddressPassword);
+    Flash_Write_Array(StartAddressPassword, (uint8_t *)new_password, 6);
+    CLCD_I2C_Display(&LCD1, "PASSWORD CHANGED", "  SUCCESSFULLY");
+    buzzer(1);
     HAL_Delay(2000);
 }
 
