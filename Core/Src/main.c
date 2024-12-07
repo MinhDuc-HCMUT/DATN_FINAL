@@ -67,7 +67,7 @@ uint32_t time_cho;
 char mess[10];
 extern uint8_t pID;
 int tmp;
-uint8_t ID=0;
+uint16_t ID=0;
 uint8_t fingerprint_detected = 0; // Biến c�? để đánh dấu trạng thái vân tay
 /* USER CODE END PV */
 
@@ -614,7 +614,7 @@ static void MX_GPIO_Init(void)
 void RFID(void)
 {
 	buzzer(1);
-	exitmenu = 15;
+	exitmenu = Delaymenu;
 	uint8_t status = -1;
 	CLCD_I2C_Display(&LCD1," RFID SETTINGS ","Pls Press DOWN");
 	while (exitmenu )
@@ -623,7 +623,7 @@ void RFID(void)
 		if (key_pressed =='*')
 		{
 			buzzer(1);
-			exitmenu = 15;
+			exitmenu = Delaymenu;
 			status++;
 			status = (status > 3) ? 0 : status;
 			switch (status)
@@ -645,7 +645,7 @@ void RFID(void)
 		if (key_pressed =='#')
 		{
 			buzzer(1);
-			exitmenu = 15;
+			exitmenu = Delaymenu;
 			switch (status)
 			{
 			case 0:
@@ -664,7 +664,7 @@ void RFID(void)
 					if (key_pressed =='*')
 					{
 						buzzer(1);
-						exitmenu = 15;
+						exitmenu = Delaymenu;
 						statusadd++;
 						statusadd = (statusadd > 2) ? 0 : statusadd;
 						switch (statusadd)
@@ -683,7 +683,7 @@ void RFID(void)
 					if (key_pressed =='#')
 					{
 						buzzer(1);
-						exitmenu = 15;
+						exitmenu = Delaymenu;
 						switch (statusadd)
 						{
 						case 1:
@@ -702,7 +702,7 @@ void RFID(void)
 								if (key_pressed =='*')
 								{
 									buzzer(1);
-									exitmenu = 15;
+									exitmenu = Delaymenu;
 									statusadd1++;
 									statusadd1 = (statusadd1 > 3) ? 0 : statusadd1;
 									switch (statusadd1)
@@ -724,7 +724,7 @@ void RFID(void)
 								if (key_pressed =='#')
 								{
 									buzzer(1);
-									exitmenu = 15;
+									exitmenu = Delaymenu;
 									uint8_t keyadd1 = (statusadd << 4) + statusadd1;
 									switch (statusadd1)
 									{
@@ -794,7 +794,7 @@ void RFID(void)
 								if (key_pressed =='*')
 								{
 									buzzer(1);
-									exitmenu = 15;
+									exitmenu = Delaymenu;
 									statusadd2++;
 									statusadd2 = (statusadd2 > 3) ? 0 : statusadd2;
 									switch (statusadd2)
@@ -816,7 +816,7 @@ void RFID(void)
 								if (key_pressed =='#')
 								{
 									buzzer(1);
-									exitmenu = 15;
+									exitmenu = Delaymenu;
 									uint8_t keyadd2 = (statusadd << 4) + statusadd2;
 									switch (statusadd2)
 									{
@@ -894,7 +894,7 @@ void RFID(void)
 					if (key_pressed =='*')
 					{
 						buzzer(1);
-						exitmenu = 15;
+						exitmenu = Delaymenu;
 						statusremove++;
 						statusremove = (statusremove > 2) ? 0 : statusremove;
 						switch (statusremove)
@@ -914,7 +914,7 @@ void RFID(void)
 					{
 						buzzer(1);
 						CLCD_I2C_Display(&LCD1,"  Please Press","      DOWN");
-						exitmenu = 15;
+						exitmenu = Delaymenu;
 						switch (statusremove)
 						{
 						case 0:
@@ -950,7 +950,7 @@ void RFID(void)
 								if (key_pressed =='#')
 								{
 									buzzer(1);
-									exitmenu = 15;
+									exitmenu = Delaymenu;
 									switch (statusrm1)
 									{
 									case 0:
@@ -969,7 +969,7 @@ void RFID(void)
 											if (key_pressed =='*')
 											{
 												buzzer(1);
-												exitmenu = 15;
+												exitmenu = Delaymenu;
 												statusadd++;
 												statusadd = (statusadd > 2) ? 0 : statusadd;
 												switch (statusadd)
@@ -987,7 +987,7 @@ void RFID(void)
 											if (key_pressed =='#')
 											{
 												buzzer(1);
-												exitmenu = 15;
+												exitmenu = Delaymenu;
 												switch (statusadd)
 												{
 												case 1:
@@ -1006,7 +1006,7 @@ void RFID(void)
 														if (key_pressed =='*')
 														{
 															buzzer(1);
-															exitmenu = 15;
+															exitmenu = Delaymenu;
 															statusadd1++;
 															statusadd1 = (statusadd1 > 3) ? 0 : statusadd1;
 															switch (statusadd1)
@@ -1028,7 +1028,7 @@ void RFID(void)
 														if (key_pressed =='#')
 														{
 															buzzer(1);
-															exitmenu = 15;
+															exitmenu = Delaymenu;
 															uint8_t keyadd1 = (statusadd << 4) + statusadd1;
 															switch (statusadd1)
 															{
@@ -1128,7 +1128,7 @@ void RFID(void)
 														if (key_pressed =='*')
 														{
 															buzzer(1);
-															exitmenu = 15;
+															exitmenu = Delaymenu;
 															statusadd2++;
 															statusadd2 = (statusadd2 > 3) ? 0 : statusadd2;
 															switch (statusadd2)
@@ -1150,7 +1150,7 @@ void RFID(void)
 														if (key_pressed =='#')
 														{
 															buzzer(1);
-															exitmenu = 15;
+															exitmenu = Delaymenu;
 															uint8_t keyadd2 = (statusadd << 4) + statusadd2;
 															switch (statusadd2)
 															{
@@ -2027,30 +2027,58 @@ uint8_t checkfaceid(uint8_t key){
 //---------- them van tay---------------
 void add_finger()
 {
-    uint8_t id = 0;
-    CLCD_I2C_Display(&LCD1, "Enter ID (1-9):", "ID= ");
+    uint16_t id = 0;
+    char id_str[4] = {0};
+    uint8_t index = 0;
+    CLCD_I2C_Display(&LCD1, "Enter ID (1-162):", "ID= ");
     while (1)
     {
         char key = KeyPad_WaitForKeyGetChar(10);
-        if (key >= '1' && key <= '9')
+        if (key >= '0' && key <= '9' && index < 3)
         {
-        	buzzer(1);
-            id = key - '0';
-            break;
+            buzzer(1);
+            id_str[index++] = key;
+            CLCD_I2C_WriteChar(&LCD1, key);
+        }
+        else if (key == '#' && index > 0)
+        {
+            buzzer(1);
+            id = atoi(id_str);
+            if (id >= 1 && id <= 162)
+            {
+                break;
+            }
+            else
+            {
+                CLCD_I2C_Display(&LCD1, "Invalid ID", "Enter ID (1-162):");
+                buzzer(5);
+                HAL_Delay(2000);
+                CLCD_I2C_Display(&LCD1, "Enter ID (1-162):", "ID= ");
+                memset(id_str, 0, sizeof(id_str));
+                index = 0;
+            }
         }
     }
     ID = id;
     CLCD_I2C_SetCursor(&LCD1, 4, 1);
-    CLCD_I2C_WriteChar(&LCD1, '0' + ID);
+    CLCD_I2C_WriteString(&LCD1, id_str);
     HAL_Delay(1000);
 
-    vitri2:
-    while(1)
+    uint32_t start_time = HAL_GetTick();
+    while (1)
     {
+        if (HAL_GetTick() - start_time > 15000) // 15 seconds timeout
+        {
+            CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+            buzzer(5);
+            HAL_Delay(2000);
+            return;
+        }
+
         collect_finger();
         CLCD_I2C_Display(&LCD1, "Add Finger Print", "Put your finger!!     ");
         HAL_Delay(1000);
-    // dat tay vao
+
         CLCD_I2C_SetCursor(&LCD1, 0, 1);
         CLCD_I2C_WriteString(&LCD1,"Reading finger...!!     ");
         tmp=0xff;
@@ -2058,6 +2086,14 @@ void add_finger()
             collect_finger();
             collect_finger();
             tmp= collect_finger();
+            if (HAL_GetTick() - start_time > 15000) // 15 seconds timeout
+            {
+                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                buzzer(5);
+                HAL_Delay(2000);
+                exitmenu = Delaymenu;
+                return;
+            }
         }
         tmp=0xff;
         CLCD_I2C_SetCursor(&LCD1, 0, 1);
@@ -2066,7 +2102,15 @@ void add_finger()
         CLCD_I2C_WriteString(&LCD1,"Processing Finger!!   ");
         tmp=0xff;
         while(tmp!=0x00){
-        tmp=img2tz(0x01);
+            tmp=img2tz(0x01);
+            if (HAL_GetTick() - start_time > 15000) // 15 seconds timeout
+            {
+                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                buzzer(5);
+                HAL_Delay(2000);
+                exitmenu = Delaymenu;
+                return;
+            }
         }
         CLCD_I2C_SetCursor(&LCD1, 0, 1);
         CLCD_I2C_WriteString(&LCD1,"put finger again");HAL_Delay(100);
@@ -2077,41 +2121,83 @@ void add_finger()
             collect_finger();
             collect_finger();
             tmp=collect_finger();
+            if (HAL_GetTick() - start_time > 15000) // 15 seconds timeout
+            {
+                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                buzzer(5);
+                HAL_Delay(2000);
+                exitmenu = Delaymenu;
+                return;
+            }
         }
         CLCD_I2C_SetCursor(&LCD1, 0, 1);
         CLCD_I2C_WriteString(&LCD1,"Remove Finger!!   ");HAL_Delay(100);
         tmp=0xff;
         CLCD_I2C_SetCursor(&LCD1, 0, 1);
         CLCD_I2C_WriteString(&LCD1,"Processing Finger!!   ");
-        while(tmp!=0x00)    {tmp=img2tz(0x02);}
-        tmp=0xff;
-        // kiem tra 2 buff co trung nhau khong
-        while(tmp!=0x00)
-        {
-            tmp=match();    //HAL_Delay(100);
-            if(tmp==0x08||tmp==0x01)
+        while(tmp!=0x00)    {
+            tmp=img2tz(0x02);
+            if (HAL_GetTick() - start_time > 15000) // 15 seconds timeout
             {
-                // loi, lam lai
-                    CLCD_I2C_SetCursor(&LCD1, 0, 1);
-                    CLCD_I2C_WriteString(&LCD1," ER: try again!");buzzer(5);HAL_Delay(1500);
-                goto vitri2;
+                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                buzzer(5);
+                HAL_Delay(2000);
+                exitmenu = Delaymenu;
+                return;
             }
         }
         tmp=0xff;
-        while(tmp!=0x00){tmp=regmodel();HAL_Delay(100);}
+        while(tmp!=0x00)
+        {
+            tmp=match();
+            if (tmp==0x08 || tmp==0x01)
+            {
+                CLCD_I2C_SetCursor(&LCD1, 0, 1);
+                CLCD_I2C_WriteString(&LCD1," ER: try again!");buzzer(5);HAL_Delay(1500);
+                return;
+            }
+            if (HAL_GetTick() - start_time > 15000) // 15 seconds timeout
+            {
+                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                buzzer(5);
+                HAL_Delay(2000);
+                exitmenu = Delaymenu;
+                return;
+            }
+        }
         tmp=0xff;
-        while(tmp!=0x00){tmp=store(ID);HAL_Delay(100);}            // luu id
+        while(tmp!=0x00){
+            tmp=regmodel();
+            if (HAL_GetTick() - start_time > 15000) // 15 seconds timeout
+            {
+                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                buzzer(5);
+                HAL_Delay(2000);
+                exitmenu = Delaymenu;
+                return;
+            }
+        }
+        tmp=0xff;
+        while(tmp!=0x00){
+            tmp=store(ID);
+            if (HAL_GetTick() - start_time > 15000) // 15 seconds timeout
+            {
+                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                buzzer(5);
+                HAL_Delay(2000);
+                exitmenu = Delaymenu;
+                return;
+            }
+        }
         CLCD_I2C_SetCursor(&LCD1, 0, 1);
         CLCD_I2C_WriteString(&LCD1,"  Save Finger!    ");
         buzzer(1);
-                /***************** DA LUU XONG**************************/
         HAL_Delay(1500);
-        tmp=0xff;
         CLCD_I2C_Clear(&LCD1);
         break;
     }
 }
-                        //----------end them van tay---------------
+//----------end them van tay---------------
 void read_finger()
 {
 /**************************BEgin Doc van tay*****************************/
@@ -2132,7 +2218,7 @@ void read_finger()
 	{
 		tmp=0xff;	// co van tay
 		CLCD_I2C_Display(&LCD1, "    WELCOME", " Finger");
-		sprintf(mess,"-id = %d  ", pID); // Use %d for integer
+		sprintf(mess,"-ID = %d  ", pID); // Use %d for integer
 		CLCD_I2C_WriteString(&LCD1,mess);
 		opendoor();
 		CLCD_I2C_Clear(&LCD1);
@@ -2149,21 +2235,41 @@ void read_finger()
 }
 void remove_id_finger()
 {
-    uint8_t id = 0;
+    uint16_t id = 0;
+    char id_str[4] = {0};
+    uint8_t index = 0;
     CLCD_I2C_Display(&LCD1, "Enter ID to remove:", "ID= ");
     while (1)
     {
         char key = KeyPad_WaitForKeyGetChar(10);
-        if (key >= '1' && key <= '9')
+        if (key >= '0' && key <= '9' && index < 3)
         {
-        	buzzer(1);
-            id = key - '0';
-            break;
+            buzzer(1);
+            id_str[index++] = key;
+            CLCD_I2C_WriteChar(&LCD1, key);
+        }
+        else if (key == '#' && index > 0)
+        {
+            buzzer(1);
+            id = atoi(id_str);
+            if (id >= 1 && id <= 162)
+            {
+                break;
+            }
+            else
+            {
+                CLCD_I2C_Display(&LCD1, "Invalid ID", "Enter ID (1-162):");
+                buzzer(5);
+                HAL_Delay(2000);
+                CLCD_I2C_Display(&LCD1, "Enter ID to remove:", "ID= ");
+                memset(id_str, 0, sizeof(id_str));
+                index = 0;
+            }
         }
     }
     ID = id;
     CLCD_I2C_SetCursor(&LCD1, 4, 1);
-    CLCD_I2C_WriteChar(&LCD1, '0' + ID);
+    CLCD_I2C_WriteString(&LCD1, id_str);
     HAL_Delay(1000);
 
     CLCD_I2C_Display(&LCD1, "Removing Finger", "");
@@ -2252,8 +2358,6 @@ void enter_password(char *password) {
 
 void change_password(void) {
     char new_password[7] = {0};
-    CLCD_I2C_Display(&LCD1, "  PLEASE INFORM", "   ALL ADMINS");
-    HAL_Delay(2000);
     CLCD_I2C_Display(&LCD1, " ENTER NEW PASS", "     ");
     enter_password(new_password);
     // Erase the flash memory at the password address before writing the new password
@@ -2349,3 +2453,4 @@ void assert_failed(uint8_t *file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
