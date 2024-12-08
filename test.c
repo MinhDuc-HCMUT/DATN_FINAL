@@ -108,8 +108,6 @@ uint8_t check_password(char *password);
 void set_default_password(void);
 void opendoor(void);
 void buzzer( uint8_t countbeep);
-uint8_t InputID_ADMIN(void);
-uint8_t InputID_USER(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -213,7 +211,7 @@ int main(void)
     CLCD_I2C_SetCursor(&LCD1, 0, 0);
     CLCD_I2C_WriteString(&LCD1, " SCAN YOUR CARD");
 
-    char selected_key = KeyPad_WaitForKeyGetChar(10); // Ch�? vô hạn cho đ���n khi có phím nhấn.
+    char selected_key = KeyPad_WaitForKeyGetChar(10); // Ch�? vô hạn cho đến khi có phím nhấn.
 
     if (selected_key == '#')
     {
@@ -267,14 +265,14 @@ int main(void)
                 if (TM_MFRC522_Check(CardID) == MI_OK)
                 {
                     key = CheckListUID(CardID);
-                    key = key >> 7;
+                    key = key >> 4;
                     break;
                 }
             }
 
             switch (key)
             {
-            case 0:
+            case 1:
                 if (selected_key == 'A')
                     RFID();
                 else if (selected_key == 'B')
@@ -626,7 +624,7 @@ void RFID(void)
 			buzzer(1);
 			exitmenu = Delaymenu;
 			status++;
-			status = (status > 2) ? 0 : status;
+			status = (status > 3) ? 0 : status;
 			switch (status)
 			{
 			case 0:
@@ -689,33 +687,25 @@ void RFID(void)
 						{
 						case 0:
 							uint8_t AdminID = InputID_ADMIN();
-							uint8_t keyadd_admin = (statusadd << 7) + AdminID;
-							if (CheckKey(keyadd_admin)!=0)
+							uint8_t keyadd = (statusadd << 7) + AdminID;
+							if (CheckKey(keyadd)!=0)
 							{
-								CLCD_I2C_Display(&LCD1," ID is existing"," Pick another ID");
-								buzzer(3);
-								HAL_Delay(1000);
-								CLCD_I2C_Display(&LCD1,"CARD: ADD","=> Admin Card");
 							}
 							else 
 							{
-								adduid(keyadd_admin);
+								adduid(keyadd);
 								CLCD_I2C_Display(&LCD1,"CARD: ADD","=> Admin Card");
 							}
 							break;
 						case 1:
 							uint8_t UserID = InputID_USER();
-							uint8_t keyadd_user = (statusadd << 7) + UserID;
-							if (CheckKey(keyadd_user)!=0)
+							uint8_t keyadd = (statusadd << 7) + UserID;
+							if (CheckKey(keyadd)!=0)
 							{
-								CLCD_I2C_Display(&LCD1," ID is existing"," Pick another ID");
-								buzzer(3);
-								HAL_Delay(1000);
-								CLCD_I2C_Display(&LCD1,"CARD: ADD","=> User Card");
 							}
 							else 
 							{
-								adduid(keyadd_user);
+								adduid(keyadd);
 								CLCD_I2C_Display(&LCD1,"CARD: ADD","=> User Card");
 							}
 							break;
@@ -745,7 +735,7 @@ void RFID(void)
 						buzzer(1);
 						exitmenu = Delaymenu;
 						statusremove++;
-						statusremove = (statusremove > 1) ? (-1) : statusremove;
+						statusremove = (statusremove > 2) ? 0 : statusremove;
 						switch (statusremove)
 						{
 						case 0:
@@ -820,7 +810,7 @@ void RFID(void)
 												buzzer(1);
 												exitmenu = Delaymenu;
 												statusadd++;
-												statusadd = (statusadd > 1) ? (-1) : statusadd;
+												statusadd = (statusadd > 1) ? 0 : statusadd;
 												switch (statusadd)
 												{
 												case 0:
@@ -830,8 +820,7 @@ void RFID(void)
 													CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","=> RM User Card");
 													break;
 												default:
-													CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","=> Back");
-													break;
+													CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","=> Back");													break;
 												}
 											}
 											if (key_pressed =='#')
@@ -842,18 +831,14 @@ void RFID(void)
 												{
 													case 0: 
 														uint8_t AdminID = InputID_ADMIN();
-														uint8_t keyadd_admin = (statusadd << 7) + AdminID;
-														if (CheckKey(keyadd_admin)==0)
+														uint8_t keyadd = (statusadd << 7) + AdminID;
+														if (CheckKey(keyadd)==0)
 														{
-															CLCD_I2C_Display(&LCD1,"ID do not existing"," Pick another ID");
-															buzzer(3);
-															HAL_Delay(1000);
-															CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","=> RM Admin Card");
 														}
 														else 
 														{
-															removeuid(CheckKey(keyadd_admin));
-															CLCD_I2C_Display(&LCD1,"REMOVE ADMIN CARD","   SUCCESSFUL  ");
+															removeuid(CheckKey(keyadd));
+															CLCD_I2C_Display(&LCD1,"  REMOVE ADCARD 1 ","   SUCCESSFUL  ");
 															HAL_Delay(1000);
 															if (checkcountUID() == 0)
 															{
@@ -868,18 +853,14 @@ void RFID(void)
 														break;
 													case 1:
 														uint8_t UserID = InputID_USER();
-														uint8_t keyadd_user = (statusadd << 7) + UserID;
-														if (CheckKey(keyadd_user)==0)
+														uint8_t keyadd = (statusadd << 7) + UserID;
+														if (CheckKey(keyadd)==0)
 														{
-															CLCD_I2C_Display(&LCD1,"ID do not existing"," Pick another ID");
-															buzzer(3);
-															HAL_Delay(1000);
-															CLCD_I2C_Display(&LCD1,"MODE: RM SELECT","=> RM User Card");
 														}
 														else 
 														{
-															removeuid(CheckKey(keyadd_user));
-															CLCD_I2C_Display(&LCD1,"REMOVE USER CARD","   SUCCESSFUL  ");
+															removeuid(CheckKey(keyadd));
+															CLCD_I2C_Display(&LCD1,"  REMOVE USCARD 1 ","   SUCCESSFUL  ");
 															HAL_Delay(1000);
 															if (checkcountUID() == 0)
 															{
@@ -926,7 +907,7 @@ void RFID(void)
 												}
 												else
 												{
-													CLCD_I2C_Display(&LCD1, "   This card","  Do not exist");
+													CLCD_I2C_Display(&LCD1, "   THIS CARD","  Do Not Exist");
 													buzzer(3);
 													HAL_Delay(1000);
 													CLCD_I2C_Display(&LCD1,"PLS SCAN CARD","=> Back");
@@ -973,226 +954,6 @@ void RFID(void)
 	}
 	CLCD_I2C_Clear(&LCD1);
 }
-
-uint8_t InputID_ADMIN()
-{
-    uint16_t id = 0;
-    char id_str[3] = {0};
-    uint8_t index = 0;
-    CLCD_I2C_Display(&LCD1, "Enter ID (1-28):", "ID= ");
-    while (1)
-    {
-        char key = KeyPad_WaitForKeyGetChar(10);
-        if (key >= '0' && key <= '9' && index < 2)
-        {
-            buzzer(1);
-            id_str[index++] = key;
-            CLCD_I2C_WriteChar(&LCD1, key);
-        }
-        else if (key == '#' && index > 0)
-        {
-            buzzer(1);
-            id = atoi(id_str);
-            if (id >= 1 && id <= 28)
-            {
-                break;
-            }
-            else
-            {
-                CLCD_I2C_Display(&LCD1, "Invalid ID", "Enter ID (1-28):");
-                buzzer(5);
-                HAL_Delay(2000);
-                CLCD_I2C_Display(&LCD1, "Enter ID (1-28):", "ID= ");
-                memset(id_str, 0, sizeof(id_str));
-                index = 0;
-            }
-        }
-    }
-    CLCD_I2C_SetCursor(&LCD1, 4, 1);
-    CLCD_I2C_WriteString(&LCD1, id_str);
-    HAL_Delay(1000);
-	return id;
-}
-
-uint8_t InputID_USER()
-{
-    uint16_t id = 0;
-    char id_str[4] = {0};
-    uint8_t index = 0;
-    CLCD_I2C_Display(&LCD1, "Enter ID (1-100):", "ID= ");
-    while (1)
-    {
-        char key = KeyPad_WaitForKeyGetChar(10);
-        if (key >= '0' && key <= '9' && index < 3)
-        {
-            buzzer(1);
-            id_str[index++] = key;
-            CLCD_I2C_WriteChar(&LCD1, key);
-        }
-        else if (key == '#' && index > 0)
-        {
-            buzzer(1);
-            id = atoi(id_str);
-            if (id >= 1 && id <= 100)
-            {
-                break;
-            }
-            else
-            {
-                CLCD_I2C_Display(&LCD1, "Invalid ID", "Enter ID (1-100):");
-                buzzer(5);
-                HAL_Delay(2000);
-                CLCD_I2C_Display(&LCD1, "Enter ID (1-100):", "ID= ");
-                memset(id_str, 0, sizeof(id_str));
-                index = 0;
-            }
-        }
-    }
-    CLCD_I2C_SetCursor(&LCD1, 4, 1);
-    CLCD_I2C_WriteString(&LCD1, id_str);
-    HAL_Delay(1000);
-	return id;
-}
-
-uint8_t CheckListUID(uint8_t *data)
-{
-    uint32_t pt = StartAddressUID;
-    while (Flash_Read_Byte(pt + 5) != 0xFF)
-    {
-        if (Flash_Read_2Byte(pt + 6) == 0xFFFF)
-        {
-            if (CheckUID(data, pt) == 1)
-                return *(uint8_t *)(pt + 5);
-        }
-        pt = pt + 8;
-    }
-    return 0;
-}
-
-uint8_t checkcountUID(void)
-{
-    uint32_t pt = StartAddressUID;
-    uint8_t count = 0;
-    while (Flash_Read_Byte(pt + 5) != 0xFF)
-    {
-        if (Flash_Read_2Byte(pt + 6) == 0xFFFF)
-        {
-            if ((Flash_Read_Byte(pt + 5) & 0x80) == 0)
-            {
-                count++;
-            }
-        }
-        pt = pt + 8;
-    }
-    return count;
-}
-
-void adduid(uint8_t key)
-{
-    setaddress();
-    CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
-    while (exitmenu)
-    {
-        if (TM_MFRC522_Check(CardID) == MI_OK)
-        {
-            HAL_Delay(100);
-            if (CheckListUID(CardID) == 0)
-            {
-                buzzer(1);
-                CardID[5] = key;
-                Flash_Write_Array(AddressUID, CardID, 6);
-                AddressUID += 8;
-                CLCD_I2C_Clear(&LCD1);
-                CLCD_I2C_SetCursor(&LCD1, 0, 0);
-                CLCD_I2C_WriteString(&LCD1, "   SUCCESSFUL");
-                HAL_Delay(1000);
-                return;
-            }
-            else
-            {
-                CLCD_I2C_Clear(&LCD1);
-                CLCD_I2C_SetCursor(&LCD1, 0, 0);
-                CLCD_I2C_WriteString(&LCD1, "CARD EXISTED");
-                buzzer(3);
-                HAL_Delay(1000);
-                CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
-            }
-        }
-        if (KeyPad_WaitForKeyGetChar(100) == '#')
-        {
-            buzzer(1);
-            return;
-        }
-    }
-}
-
-void checkthe(void)
-{
-    exitmenu = 30;
-    CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
-    while (exitmenu)
-    {
-        if (TM_MFRC522_Check(CardID) == MI_OK)
-        {
-            if (CheckListUID(CardID) == 0)
-            {
-                CLCD_I2C_Clear(&LCD1);
-                CLCD_I2C_SetCursor(&LCD1, 0, 0);
-                CLCD_I2C_WriteString(&LCD1, "CARD DONT EXIST");
-                buzzer(3);
-                HAL_Delay(1000);
-                CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
-                HAL_Delay(1000);
-            }
-            else
-            {
-                uint8_t key = CheckListUID(CardID);
-                uint8_t key2 = key & 0x7F;
-                uint8_t key1 = (key & 0x80) >> 7;
-                CLCD_I2C_Clear(&LCD1);
-                buzzer(1);
-                switch (key1)
-                {
-                case 0:
-                    CLCD_I2C_SetCursor(&LCD1, 0, 0);
-                    CLCD_I2C_WriteString(&LCD1, "ADMIN CARD");
-                    break;
-                default:
-                    CLCD_I2C_SetCursor(&LCD1, 0, 0);
-                    CLCD_I2C_WriteString(&LCD1, "USER CARD");
-                    break;
-                }
-                char buffer[16];
-                snprintf(buffer, sizeof(buffer), "Card ID: %d", key2);
-                CLCD_I2C_SetCursor(&LCD1, 0, 1);
-                CLCD_I2C_WriteString(&LCD1, buffer);
-                HAL_Delay(1000);
-                CLCD_I2C_Display(&LCD1, "PLS SCAN CARD", "=> Back");
-            }
-        }
-        if (KeyPad_WaitForKeyGetChar(100) == '#')
-        {
-            buzzer(1);
-            return;
-        }
-    }
-}
-
-uint32_t CheckKey(uint8_t key)
-{
-    uint32_t pt = StartAddressUID;
-    while (Flash_Read_Byte(pt + 5) != 0xFF)
-    {
-        if (Flash_Read_2Byte(pt + 6) == 0xFFFF)
-        {
-            if (*(uint8_t *)(pt + 5) == key)
-                return pt;
-        }
-        pt = pt + 8;
-    }
-    return 0;
-}
-
 void FACEID(void) {
 	buzzer(1);
 	exitmenu = Delaymenu;
@@ -1643,6 +1404,151 @@ uint8_t CheckUID(uint8_t *data, uint32_t address)
 	return 1;
 }
 
+uint8_t CheckListUID(uint8_t *data)
+{
+	uint32_t pt = StartAddressUID;
+	while (Flash_Read_Byte(pt + 5) != 0xFF)
+	{
+		if(Flash_Read_2Byte(pt + 6) == 0xFFFF){
+			if (CheckUID(data, pt) == 1)
+				return *(uint8_t *)(pt + 5);
+		}
+		pt = pt + 8;
+	}
+	return 0;
+}
+
+uint8_t checkcountUID(void)
+{
+	uint32_t pt = StartAddressUID;
+	uint8_t count = 0;
+	while (Flash_Read_Byte(pt + 5) != 0xFF)
+	{
+		if(Flash_Read_2Byte(pt + 6) == 0xFFFF){
+			if ((Flash_Read_Byte(pt + 5) >> 4) == 1)
+			{
+				count++;
+			}
+		}
+		pt = pt + 8;
+	}
+	return count;
+}
+
+void adduid(uint8_t key)
+{
+	setaddress();
+	CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
+	while (exitmenu)
+	{
+		if (TM_MFRC522_Check(CardID) == MI_OK)
+		{
+			HAL_Delay(100);
+			if (CheckListUID(CardID) == 0)
+			{
+				buzzer(1);
+				CardID[5] = key;
+				Flash_Write_Array(AddressUID, CardID, 6);
+				AddressUID += 8;
+				CLCD_I2C_Clear(&LCD1);
+				CLCD_I2C_SetCursor(&LCD1, 0, 0);
+				CLCD_I2C_WriteString(&LCD1, "   SUCCESSFUL");
+				HAL_Delay(1000);
+				return;
+			}
+			else
+			{
+				CLCD_I2C_Clear(&LCD1);
+				CLCD_I2C_SetCursor(&LCD1, 0, 0);
+				CLCD_I2C_WriteString(&LCD1, "CARD EXISTED");
+				buzzer(3);
+				HAL_Delay(1000);
+				CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
+			}
+		}
+		if (KeyPad_WaitForKeyGetChar(100)=='#')
+		{
+			buzzer(1);
+			return;
+		}
+	}
+}
+
+void checkthe(void)
+{
+	exitmenu = 30;
+	CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
+	while (exitmenu )
+	{
+		if (TM_MFRC522_Check(CardID) == MI_OK)
+		{
+			if (CheckListUID(CardID) == 0)
+			{
+				CLCD_I2C_Clear(&LCD1);
+				CLCD_I2C_SetCursor(&LCD1, 0, 0);
+				CLCD_I2C_WriteString(&LCD1, "CARD DONT EXIST");
+				buzzer(3);
+				HAL_Delay(1000);
+				CLCD_I2C_Display(&LCD1, "SCAN CARD", "=> Back");
+				HAL_Delay(1000);
+			}
+			else
+			{
+				uint8_t key = CheckListUID(CardID);
+				uint8_t key2 = key & 0x0f;
+				uint8_t key1 = key >> 4;
+				CLCD_I2C_Clear(&LCD1);
+				buzzer(1);
+				switch (key1)
+				{
+				case 1:
+					CLCD_I2C_SetCursor(&LCD1, 0, 0);
+					CLCD_I2C_WriteString(&LCD1, "ADMIN CARD");
+					break;
+				default:
+					CLCD_I2C_SetCursor(&LCD1, 0, 0);
+					CLCD_I2C_WriteString(&LCD1, "USER CARD");
+					break;
+				}
+				switch (key2)
+				{
+				case 1:
+					CLCD_I2C_SetCursor(&LCD1, 0, 1);
+					CLCD_I2C_WriteString(&LCD1, "Card 1");
+					break;
+				case 2:
+					CLCD_I2C_SetCursor(&LCD1, 0, 1);
+					CLCD_I2C_WriteString(&LCD1, "Card 2");
+					break;
+				default:
+					CLCD_I2C_SetCursor(&LCD1, 0, 1);
+					CLCD_I2C_WriteString(&LCD1, "Card 3");
+					break;
+				}
+				HAL_Delay(1000);
+				CLCD_I2C_Display(&LCD1, "PLS SCAN CARD", "=> Back");
+			}
+		}
+		if (KeyPad_WaitForKeyGetChar(100)=='#')
+		{
+			buzzer(1);
+			return;
+		}
+	}
+}
+uint32_t CheckKey(uint8_t key)
+{
+	uint32_t pt = StartAddressUID;
+	while (Flash_Read_Byte(pt + 5) != 0xFF)
+	{
+		if(Flash_Read_2Byte(pt + 6) == 0xFFFF){
+			if (*(uint8_t *)(pt + 5) == key)
+				return pt;
+		}
+		pt = pt + 8;
+	}
+	return 0;
+}
 void removeuid(uint32_t addressrm)
 {
 	Flash_Write_2Byte(addressrm + 6, 0x0000);
@@ -1657,7 +1563,7 @@ void startadd(void)
 			{
 				if (CheckListUID(CardID) == 0)
 				{
-					CardID[5] = 0x01;
+					CardID[5] = 0x11;
 					Flash_Write_Array(AddressUID, CardID, 6);
 					AddressUID += 8;
 					break;
@@ -2190,3 +2096,83 @@ void assert_failed(uint8_t *file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+uint8_t InputID_ADMIN()
+{
+    uint16_t id = 0;
+    char id_str[3] = {0};
+    uint8_t index = 0;
+    CLCD_I2C_Display(&LCD1, "Enter ID (1-28):", "ID= ");
+    while (1)
+    {
+        char key = KeyPad_WaitForKeyGetChar(10);
+        if (key >= '0' && key <= '9' && index < 2)
+        {
+            buzzer(1);
+            id_str[index++] = key;
+            CLCD_I2C_WriteChar(&LCD1, key);
+        }
+        else if (key == '#' && index > 0)
+        {
+            buzzer(1);
+            id = atoi(id_str);
+            if (id >= 1 && id <= 28)
+            {
+                break;
+            }
+            else
+            {
+                CLCD_I2C_Display(&LCD1, "Invalid ID", "Enter ID (1-28):");
+                buzzer(5);
+                HAL_Delay(2000);
+                CLCD_I2C_Display(&LCD1, "Enter ID (1-28):", "ID= ");
+                memset(id_str, 0, sizeof(id_str));
+                index = 0;
+            }
+        }
+    }
+    CLCD_I2C_SetCursor(&LCD1, 4, 1);
+    CLCD_I2C_WriteString(&LCD1, id_str);
+    HAL_Delay(1000);
+	return id;
+}
+
+uint8_t InputID_USER()
+{
+    uint16_t id = 0;
+    char id_str[4] = {0};
+    uint8_t index = 0;
+    CLCD_I2C_Display(&LCD1, "Enter ID (1-100):", "ID= ");
+    while (1)
+    {
+        char key = KeyPad_WaitForKeyGetChar(10);
+        if (key >= '0' && key <= '9' && index < 3)
+        {
+            buzzer(1);
+            id_str[index++] = key;
+            CLCD_I2C_WriteChar(&LCD1, key);
+        }
+        else if (key == '#' && index > 0)
+        {
+            buzzer(1);
+            id = atoi(id_str);
+            if (id >= 1 && id <= 100)
+            {
+                break;
+            }
+            else
+            {
+                CLCD_I2C_Display(&LCD1, "Invalid ID", "Enter ID (1-100):");
+                buzzer(5);
+                HAL_Delay(2000);
+                CLCD_I2C_Display(&LCD1, "Enter ID (1-100):", "ID= ");
+                memset(id_str, 0, sizeof(id_str));
+                index = 0;
+            }
+        }
+    }
+    CLCD_I2C_SetCursor(&LCD1, 4, 1);
+    CLCD_I2C_WriteString(&LCD1, id_str);
+    HAL_Delay(1000);
+	return id;
+}
