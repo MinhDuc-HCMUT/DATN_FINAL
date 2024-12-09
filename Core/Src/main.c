@@ -38,6 +38,7 @@
 /* USER CODE BEGIN PD */
 #define StartAddressUID 0x0800F000
 #define StartAddressPassword 0x0800F400
+#define StartAddressFingerID 0x0800F800
 #define Delaymenu 20
 #define opendoortime 3000
 /* USER CODE END PD */
@@ -60,6 +61,7 @@ volatile int8_t Rx_Buffer[128];
 char Tx_Buffer[10];
 CLCD_I2C_Name LCD1;
 uint8_t CardID[MFRC522_MAX_LEN];
+uint8_t FingerID[1];
 uint8_t exitmenu = 255;
 uint32_t AddressUID = StartAddressUID;
 
@@ -67,7 +69,7 @@ uint32_t time_cho;
 char mess[10];
 extern uint8_t pID;
 int tmp;
-uint16_t ID=0;
+uint8_t ID=0;
 uint8_t fingerprint_detected = 0; // Biến c�? để đánh dấu trạng thái vân tay
 /* USER CODE END PV */
 
@@ -101,6 +103,9 @@ void add_finger();
 void read_finger();
 void remove_id_finger();
 void remove_all_finger();
+uint32_t CheckKeyFinger(uint8_t key);
+void AddFingerID(uint8_t key);
+void RemoveFingerID(uint32_t addressrm);
 void enter_password(char *password);
 void change_password(void);
 uint8_t check_password(char *password);
@@ -1535,137 +1540,146 @@ uint8_t checkfaceid(uint8_t key){
 void add_finger()
 {
     ID = InputID_FINGER();
-    uint32_t start_time_finger = HAL_GetTick();
-    while (1)
+    if(CheckKeyFinger(ID)!=0)
     {
-        if (HAL_GetTick() - start_time_finger > 15000) // 15 seconds timeout
+		CLCD_I2C_Display(&LCD1," ID is existing"," Pick another ID");
+		buzzer(3);
+		HAL_Delay(1000);
+    }
+    else{
+        uint32_t start_time_finger = HAL_GetTick();
+        while (1)
         {
-            CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
-            buzzer(5);
-            HAL_Delay(2000);
-            return;
-        }
+            if (HAL_GetTick() - start_time_finger > 20000) // 15 seconds timeout
+            {
+                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                buzzer(5);
+                HAL_Delay(2000);
+                return;
+            }
 
-        collect_finger();
-        CLCD_I2C_Display(&LCD1, "Add Finger Print", "Put your finger!!     ");
-        HAL_Delay(1000);
+            collect_finger();
+            CLCD_I2C_Display(&LCD1, "Add Finger Print", "Put your finger!!     ");
+            HAL_Delay(1000);
 
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Reading finger...!!     ");
-        tmp=0xff;
-        while(tmp!=0x00){
-            collect_finger();
-            collect_finger();
-            tmp= collect_finger();
-            if (HAL_GetTick() - start_time_finger > 15000) // 15 seconds timeout
-            {
-                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
-                buzzer(5);
-                HAL_Delay(2000);
-                exitmenu = Delaymenu;
-                return;
+            CLCD_I2C_SetCursor(&LCD1, 0, 1);
+            CLCD_I2C_WriteString(&LCD1,"Reading finger...!!     ");
+            tmp=0xff;
+            while(tmp!=0x00){
+                collect_finger();
+                collect_finger();
+                tmp= collect_finger();
+                if (HAL_GetTick() - start_time_finger > 20000) // 15 seconds timeout
+                {
+                    CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                    buzzer(5);
+                    HAL_Delay(2000);
+                    exitmenu = Delaymenu;
+                    return;
+                }
             }
+            tmp=0xff;
+            CLCD_I2C_SetCursor(&LCD1, 0, 1);
+            CLCD_I2C_WriteString(&LCD1,"Remove Finger!!   ");HAL_Delay(100);
+            CLCD_I2C_SetCursor(&LCD1, 0, 1);
+            CLCD_I2C_WriteString(&LCD1,"Processing Finger!!   ");
+            tmp=0xff;
+            while(tmp!=0x00)    {
+                tmp=img2tz(0x01);
+                if (HAL_GetTick() - start_time_finger > 20000) // 15 seconds timeout
+                {
+                    CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                    buzzer(5);
+                    HAL_Delay(2000);
+                    exitmenu = Delaymenu;
+                    return;
+                }
+            }
+            CLCD_I2C_SetCursor(&LCD1, 0, 1);
+            CLCD_I2C_WriteString(&LCD1,"put finger again");HAL_Delay(100);
+            CLCD_I2C_SetCursor(&LCD1, 0, 1);
+            CLCD_I2C_WriteString(&LCD1,"Reading finger...!!     ");
+            tmp=0xff;
+            while(tmp!=0x00)    {
+                collect_finger();
+                collect_finger();
+                tmp=collect_finger();
+                if (HAL_GetTick() - start_time_finger > 20000) // 15 seconds timeout
+                {
+                    CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                    buzzer(5);
+                    HAL_Delay(2000);
+                    exitmenu = Delaymenu;
+                    return;
+                }
+            }
+            CLCD_I2C_SetCursor(&LCD1, 0, 1);
+            CLCD_I2C_WriteString(&LCD1,"Remove Finger!!   ");HAL_Delay(100);
+            tmp=0xff;
+            CLCD_I2C_SetCursor(&LCD1, 0, 1);
+            CLCD_I2C_WriteString(&LCD1,"Processing Finger!!   ");
+            while(tmp!=0x00)    {
+                tmp=img2tz(0x02);
+                if (HAL_GetTick() - start_time_finger > 20000) // 15 seconds timeout
+                {
+                    CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                    buzzer(5);
+                    HAL_Delay(2000);
+                    exitmenu = Delaymenu;
+                    return;
+                }
+            }
+            tmp=0xff;
+            while(tmp!=0x00)
+            {
+                tmp=match();
+                if (tmp==0x08 || tmp==0x01)
+                {
+                    CLCD_I2C_SetCursor(&LCD1, 0, 1);
+                    CLCD_I2C_WriteString(&LCD1," ER: try again!");buzzer(5);HAL_Delay(1500);
+                    return;
+                }
+                if (HAL_GetTick() - start_time_finger > 20000) // 15 seconds timeout
+                {
+                    CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                    buzzer(5);
+                    HAL_Delay(2000);
+                    exitmenu = Delaymenu;
+                    return;
+                }
+            }
+            tmp=0xff;
+            while(tmp!=0x00){
+                tmp=regmodel();
+                if (HAL_GetTick() - start_time_finger > 20000) // 15 seconds timeout
+                {
+                    CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                    buzzer(5);
+                    HAL_Delay(2000);
+                    exitmenu = Delaymenu;
+                    return;
+                }
+            }
+            tmp=0xff;
+            while(tmp!=0x00){
+                tmp=store(ID);
+                if (HAL_GetTick() - start_time_finger > 20000) // 15 seconds timeout
+                {
+                    CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
+                    buzzer(5);
+                    HAL_Delay(2000);
+                    exitmenu = Delaymenu;
+                    return;
+                }
+            }
+            CLCD_I2C_SetCursor(&LCD1, 0, 1);
+            CLCD_I2C_WriteString(&LCD1,"  Save Finger!    ");
+            buzzer(1);
+        	AddFingerID(ID);
+            HAL_Delay(1500);
+            CLCD_I2C_Clear(&LCD1);
+            break;
         }
-        tmp=0xff;
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Remove Finger!!   ");HAL_Delay(100);
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Processing Finger!!   ");
-        tmp=0xff;
-        while(tmp!=0x00)    {
-            tmp=img2tz(0x01);
-            if (HAL_GetTick() - start_time_finger > 15000) // 15 seconds timeout
-            {
-                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
-                buzzer(5);
-                HAL_Delay(2000);
-                exitmenu = Delaymenu;
-                return;
-            }
-        }
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"put finger again");HAL_Delay(100);
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Reading finger...!!     ");
-        tmp=0xff;
-        while(tmp!=0x00)    {
-            collect_finger();
-            collect_finger();
-            tmp=collect_finger();
-            if (HAL_GetTick() - start_time_finger > 15000) // 15 seconds timeout
-            {
-                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
-                buzzer(5);
-                HAL_Delay(2000);
-                exitmenu = Delaymenu;
-                return;
-            }
-        }
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Remove Finger!!   ");HAL_Delay(100);
-        tmp=0xff;
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"Processing Finger!!   ");
-        while(tmp!=0x00)    {
-            tmp=img2tz(0x02);
-            if (HAL_GetTick() - start_time_finger > 15000) // 15 seconds timeout
-            {
-                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
-                buzzer(5);
-                HAL_Delay(2000);
-                exitmenu = Delaymenu;
-                return;
-            }
-        }
-        tmp=0xff;
-        while(tmp!=0x00)
-        {
-            tmp=match();
-            if (tmp==0x08 || tmp==0x01)
-            {
-                CLCD_I2C_SetCursor(&LCD1, 0, 1);
-                CLCD_I2C_WriteString(&LCD1," ER: try again!");buzzer(5);HAL_Delay(1500);
-                return;
-            }
-            if (HAL_GetTick() - start_time_finger > 15000) // 15 seconds timeout
-            {
-                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
-                buzzer(5);
-                HAL_Delay(2000);
-                exitmenu = Delaymenu;
-                return;
-            }
-        }
-        tmp=0xff;
-        while(tmp!=0x00){
-            tmp=regmodel();
-            if (HAL_GetTick() - start_time_finger > 15000) // 15 seconds timeout
-            {
-                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
-                buzzer(5);
-                HAL_Delay(2000);
-                exitmenu = Delaymenu;
-                return;
-            }
-        }
-        tmp=0xff;
-        while(tmp!=0x00){
-            tmp=store(ID);
-            if (HAL_GetTick() - start_time_finger > 15000) // 15 seconds timeout
-            {
-                CLCD_I2C_Display(&LCD1, "TIMEOUT", "Try again");
-                buzzer(5);
-                HAL_Delay(2000);
-                exitmenu = Delaymenu;
-                return;
-            }
-        }
-        CLCD_I2C_SetCursor(&LCD1, 0, 1);
-        CLCD_I2C_WriteString(&LCD1,"  Save Finger!    ");
-        buzzer(1);
-        HAL_Delay(1500);
-        CLCD_I2C_Clear(&LCD1);
-        break;
     }
 }
 //----------end them van tay---------------
@@ -1706,61 +1720,34 @@ void read_finger()
 }
 void remove_id_finger()
 {
-    uint16_t id = 0;
-    char id_str[4] = {0};
-    uint8_t index = 0;
-    CLCD_I2C_Display(&LCD1, "Enter ID to remove:", "ID= ");
-    while (1)
+    ID = InputID_FINGER();
+    if(CheckKeyFinger(ID)==0)
     {
-        char key = KeyPad_WaitForKeyGetChar(10);
-        if (key >= '0' && key <= '9' && index < 3)
-        {
-            buzzer(1);
-            id_str[index++] = key;
-            CLCD_I2C_WriteChar(&LCD1, key);
-        }
-        else if (key == '#' && index > 0)
-        {
-            buzzer(1);
-            id = atoi(id_str);
-            if (id >= 1 && id <= 162)
-            {
-                break;
-            }
-            else
-            {
-                CLCD_I2C_Display(&LCD1, "Invalid ID", "Enter ID (1-162):");
-                buzzer(5);
-                HAL_Delay(2000);
-                CLCD_I2C_Display(&LCD1, "Enter ID to remove:", "ID= ");
-                memset(id_str, 0, sizeof(id_str));
-                index = 0;
-            }
-        }
+		CLCD_I2C_Display(&LCD1,"ID doesnt exist"," Pick another ID");
+		buzzer(3);
+		HAL_Delay(1000);
     }
-    ID = id;
-    CLCD_I2C_SetCursor(&LCD1, 4, 1);
-    CLCD_I2C_WriteString(&LCD1, id_str);
-    HAL_Delay(1000);
-
-    CLCD_I2C_Display(&LCD1, "Removing Finger", "");
-    uint8_t result = delete_id_finger(ID);
-    if (result == 0x00)
-    {
-        CLCD_I2C_Display(&LCD1, "Remove Finger", "Successfully");
-        buzzer(1);
-        // Ensure the fingerprint is removed from memory
-        fingerprint_detected = 0;
+    else{
+		CLCD_I2C_Display(&LCD1, "Removing Finger", "");
+		uint8_t result = delete_id_finger(ID);
+		if (result == 0x00)
+		{
+			CLCD_I2C_Display(&LCD1, "Remove Finger", "Successfully");
+			buzzer(1);
+	    	RemoveFingerID(CheckKeyFinger(ID));
+			// Ensure the fingerprint is removed from memory
+			fingerprint_detected = 0;
+		}
+		else
+		{
+			char buffer[16];
+			snprintf(buffer, sizeof(buffer), "Error Code: %02X", result);
+			buzzer(5);
+			CLCD_I2C_Display(&LCD1, "Remove Finger", buffer);
+		}
+		HAL_Delay(2000);
+		CLCD_I2C_Clear(&LCD1);
     }
-    else
-    {
-        char buffer[16];
-        snprintf(buffer, sizeof(buffer), "Error Code: %02X", result);
-        buzzer(5);
-        CLCD_I2C_Display(&LCD1, "Remove Finger", buffer);
-    }
-    HAL_Delay(2000);
-    CLCD_I2C_Clear(&LCD1);
 }
 
 void remove_all_finger()
@@ -1771,6 +1758,7 @@ void remove_all_finger()
     {
         CLCD_I2C_Display(&LCD1, "   REMOVE ALL", "  SUCCESSFULLY");
         buzzer(1);
+    	Flash_Erase(StartAddressFingerID);
         // Ensure all fingerprints are removed from memory
         fingerprint_detected = 0;
     }
@@ -1784,6 +1772,33 @@ void remove_all_finger()
     HAL_Delay(2000);
     CLCD_I2C_Clear(&LCD1);
 }
+uint32_t CheckKeyFinger(uint8_t key)
+{
+    uint32_t pt = StartAddressFingerID;
+    while (Flash_Read_2Byte(pt) != 0xFFFF)
+    {
+        if (*(uint8_t *)(pt) == key)
+            return pt;
+        pt = pt + 2;
+	    }
+    return 0;
+}
+void AddFingerID(uint8_t key)
+{
+	uint32_t pt = StartAddressFingerID;
+	while (Flash_Read_2Byte(pt) != 0xFFFF)
+	{
+		pt = pt + 2;
+	}
+	FingerID[0] = key;
+	Flash_Write_Array(pt, FingerID, 1);
+}
+
+void RemoveFingerID(uint32_t addressrm)
+{
+	Flash_Write_2Byte(addressrm, 0xFFFF);
+}
+
 
 void startface(void)
 {
