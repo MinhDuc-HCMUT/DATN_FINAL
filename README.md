@@ -14,3 +14,6 @@ Hệ thống được xây dựng thành 4 lớp:
 
 ## 3. Sơ đồ khối của hệ thống
 ![image](https://github.com/user-attachments/assets/dec3c6a1-f48d-4bcd-b78b-125f9f64a0ed)
+
+## 4. Chương trình nhận diện gương mặt tương tác với hệ thống
+https://github.com/MinhDuc-HCMUT/FACE_RECOGNITION_DATN.git 
